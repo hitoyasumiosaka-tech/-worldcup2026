@@ -84,8 +84,15 @@
   #cd-sub { font-size:13px; color:var(--text-dim); }
 
   /* REVEAL SECTION LOCK */
-  #reveal-section { transition:filter .4s ease; }
-  #reveal-section.locked { filter:blur(7px); user-select:none; pointer-events:none; }
+  #reveal-section { position:relative; }
+  #reveal-overlay {
+    display:none;
+    position:absolute; inset:0; z-index:10;
+    background:var(--bg);
+    border-radius:var(--r);
+    pointer-events:none;
+  }
+  #reveal-section.locked #reveal-overlay { display:block; }
 
   /* RULE IMAGE MODAL */
   .rule-modal-overlay { padding:0 !important; align-items:stretch !important; justify-content:stretch !important; }
@@ -369,8 +376,9 @@
     </div>
   </div>
 
-  <!-- REVEAL SECTION (blurred until REVEAL_TIME) -->
+  <!-- REVEAL SECTION (hidden until REVEAL_TIME) -->
   <div id="reveal-section">
+  <div id="reveal-overlay"></div>
 
     <!-- PARTICIPANT STATUS -->
     <div class="stitle">参加者ステータス</div>
@@ -896,10 +904,11 @@ function isRevealed() { return Date.now() >= REVEAL_TIME; }
     if (isRevealed()) {
       section.classList.remove('locked');
       banner.style.display = 'none';
-      return; // タイマー停止
+      return;
     }
     section.classList.add('locked');
     banner.style.display = 'block';
+    section.style.userSelect = 'none';
     const diff = REVEAL_TIME - Date.now();
     const h  = Math.floor(diff / 3600000);
     const m  = Math.floor((diff % 3600000) / 60000);
