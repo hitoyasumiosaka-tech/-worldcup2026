@@ -49,14 +49,17 @@
 
   /* ACTION BUTTONS */
   .action-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:28px; }
-  .action-btn { background:#fff; border:2px solid #1a1a5e; border-radius:var(--r); padding:14px 10px; text-align:center; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; color:#1a1a5e; transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .action-btn { background:#fff; border:2px solid #1a1a5e; border-radius:var(--r); padding:14px 16px; text-align:center; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; color:#1a1a5e; transition:all .15s; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:8px; }
   .action-btn:hover { background:#f0f0ff; transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
   .action-btn:active { transform:translateY(0); }
-  .action-btn .ab-icon { font-size:22px; }
+  .action-btn .ab-icon { font-size:18px; flex-shrink:0; }
   @media(max-width:500px) { .action-btns { grid-template-columns:1fr; } }
 
   /* GROUP LEAGUE MODAL */
-  .group-modal { max-width:700px; max-height:85vh; overflow-y:auto; }
+  .group-modal { max-width:720px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  .group-modal-header { padding:20px 24px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .group-modal-body { flex:1; overflow-y:auto; padding:16px 24px; -webkit-overflow-scrolling:touch; }
+  .group-modal-footer { padding:14px 24px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
   .group-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
   .group-block { background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); overflow:hidden; }
   .group-header { background:var(--gold-dim); border-bottom:1px solid var(--border); padding:8px 14px; font-size:11px; font-weight:800; letter-spacing:.15em; color:var(--gold); text-transform:uppercase; }
@@ -66,16 +69,51 @@
   .group-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
   .group-table tr:last-child td { border-bottom:none; }
   .group-table td.num { text-align:center; color:var(--text-dim); font-size:12px; }
-  .group-table .team-cell { display:flex; align-items:center; gap:7px; font-weight:600; }
+  .group-table .team-cell { display:flex; flex-direction:column; gap:3px; }
+  .group-table .team-name-row { display:flex; align-items:center; gap:7px; font-weight:600; }
   .group-table .team-flag-sm { font-size:18px; }
+  .group-table .bettors-row { display:flex; flex-wrap:wrap; gap:3px; padding-left:2px; }
+  .bettor-chip { background:var(--gold-dim); border:1px solid var(--gold); border-radius:4px; padding:1px 6px; font-size:10px; color:var(--gold); font-weight:600; }
 
   /* RULE IMAGE MODAL */
-  .rule-modal { max-width:500px; padding:20px; }
+  .rule-modal { max-width:500px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  .rule-modal-body { flex:1; overflow-y:auto; padding:20px; -webkit-overflow-scrolling:touch; }
+  .rule-modal-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
   .rule-img { width:100%; border-radius:8px; display:block; }
-  .rule-img-wrap { text-align:center; }
-  .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; }
+  .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; text-align:center; }
 
-  /* TOURNAMENT TOAST */
+  /* TOURNAMENT MODAL */
+  .tourney-modal { max-width:780px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  .tourney-header { padding:18px 20px 0; flex-shrink:0; }
+  .tourney-header h2 { margin-bottom:14px; }
+  .round-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:none; }
+  .round-tabs::-webkit-scrollbar { display:none; }
+  .round-tab { flex-shrink:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:7px 16px; font-size:12px; font-weight:700; color:var(--text-dim); cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .round-tab.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
+  .tourney-body { flex:1; overflow:hidden; position:relative; }
+  .round-panels { display:flex; height:100%; transition:transform .3s cubic-bezier(.4,0,.2,1); }
+  .round-panel { flex-shrink:0; width:100%; height:100%; overflow-y:auto; padding:16px 20px; -webkit-overflow-scrolling:touch; }
+  .match-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; }
+  .match-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:14px; cursor:pointer; transition:border-color .15s; }
+  .match-card:hover { border-color:var(--gold); }
+  .match-label { font-size:10px; color:var(--text-muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+  .match-date { font-size:11px; color:var(--text-dim); margin-bottom:10px; }
+  .match-teams { display:flex; align-items:center; gap:10px; }
+  .match-team { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .match-team-flag { font-size:32px; line-height:1; }
+  .match-team-name { font-size:12px; font-weight:700; text-align:center; color:var(--text); }
+  .match-team-name.tbd { color:var(--text-muted); font-weight:400; font-style:italic; }
+  .match-vs { font-size:13px; font-weight:800; color:var(--text-muted); flex-shrink:0; }
+  .match-edit-hint { text-align:center; margin-top:10px; font-size:10px; color:var(--text-muted); }
+  .tourney-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+
+  /* EDIT MATCH MODAL */
+  .edit-modal { max-width:360px; }
+  .edit-modal h2 { font-size:16px; margin-bottom:16px; }
+  .edit-modal .mrow { margin-bottom:12px; }
+  .edit-modal .mrow label { display:block; font-size:11px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
+  .edit-modal select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); padding:10px 12px; color:var(--text); font-size:14px; font-family:inherit; outline:none; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%237070a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 11px center; padding-right:32px; cursor:pointer; }
+  .edit-modal select:focus { border-color:var(--gold); }
 
   /* SECTION TITLE */
   .stitle { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
@@ -218,7 +256,7 @@
     <button class="action-btn" onclick="openModal('group-modal')">
       <span class="ab-icon">⚽</span>グループリーグを見る
     </button>
-    <button class="action-btn" onclick="showToast('🏆 開幕後公開予定です')">
+    <button class="action-btn" onclick="openModal('tourney-modal')">
       <span class="ab-icon">🏆</span>トーナメントを見る
     </button>
   </div>
@@ -304,15 +342,15 @@
 <!-- RULE MODAL -->
 <div class="modal-overlay" id="rule-modal">
   <div class="modal rule-modal">
-    <div class="rule-img-wrap">
+    <div class="rule-modal-body">
       <img src="rule.png" alt="ルール表" class="rule-img"
         onerror="this.style.display='none';document.getElementById('rule-placeholder').style.display='block'">
       <div id="rule-placeholder" class="rule-img-placeholder" style="display:none;">
         📋 ルール画像が見つかりません<br>
-        <span style="font-size:12px;">「rule.png」をワールドカップフォルダに保存してください</span>
+        <span style="font-size:12px;">GitHubに「rule.png」をアップロードしてください</span>
       </div>
     </div>
-    <div style="text-align:center;margin-top:16px;">
+    <div class="rule-modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('rule-modal')" style="width:100%;padding:12px;">閉じる</button>
     </div>
   </div>
@@ -321,10 +359,49 @@
 <!-- GROUP MODAL -->
 <div class="modal-overlay" id="group-modal">
   <div class="modal group-modal">
-    <h2 style="margin-bottom:16px;">⚽ グループリーグ</h2>
-    <div class="group-grid" id="group-grid"></div>
-    <div style="text-align:center;margin-top:20px;">
+    <div class="group-modal-header">
+      <h2>⚽ グループリーグ</h2>
+    </div>
+    <div class="group-modal-body">
+      <div class="group-grid" id="group-grid"></div>
+    </div>
+    <div class="group-modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('group-modal')" style="width:100%;padding:12px;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOURNAMENT MODAL -->
+<div class="modal-overlay" id="tourney-modal">
+  <div class="modal tourney-modal">
+    <div class="tourney-header">
+      <h2>🏆 トーナメント</h2>
+      <div class="round-tabs" id="round-tabs"></div>
+    </div>
+    <div class="tourney-body">
+      <div class="round-panels" id="round-panels"></div>
+    </div>
+    <div class="tourney-footer">
+      <button class="btn btn-ghost" onclick="closeModal('tourney-modal')" style="width:100%;padding:12px;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MATCH MODAL -->
+<div class="modal-overlay" id="edit-match-modal">
+  <div class="modal edit-modal">
+    <h2 id="edit-match-title">試合を編集</h2>
+    <div class="mrow">
+      <label>🏠 ホームチーム</label>
+      <select id="edit-home"></select>
+    </div>
+    <div class="mrow">
+      <label>✈️ アウェイチーム</label>
+      <select id="edit-away"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-match-modal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveMatch()">保存</button>
     </div>
   </div>
 </div>
@@ -628,7 +705,16 @@ function renderTeams() {
 
 // ─── Utils ────────────────────────────────────────────────────────────────
 function fmt(n) { return n.toLocaleString('ja-JP'); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+let tourneyInited = false;
+function openModal(id) {
+  if (id === 'group-modal') buildGroupGrid();
+  if (id === 'tourney-modal') {
+    if (!tourneyInited) { initTourney(); tourneyInited = true; }
+    else renderTourneyPanels();
+    switchRound(currentRoundIdx);
+  }
+  document.getElementById(id).classList.add('open');
+}
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 let _tt;
 function showToast(msg) {
@@ -642,20 +728,181 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
 
-// ─── グループリーグ描画 ────────────────────────────────────────────────────
+// ─── トーナメントデータ ───────────────────────────────────────────────────
+const TOURNEY_ROUNDS = [
+  { key:'R32', label:'ベスト32' },
+  { key:'R16', label:'ベスト16' },
+  { key:'QF',  label:'ベスト8' },
+  { key:'SF',  label:'ベスト4' },
+  { key:'F',   label:'決勝' },
+];
+const TOURNEY_MATCHES = [
+  // ベスト32
+  {id:'M49',round:'R32',label:'試合49',date:'2026-07-04',time:'04:00'},{id:'M50',round:'R32',label:'試合50',date:'2026-07-04',time:'08:00'},
+  {id:'M51',round:'R32',label:'試合51',date:'2026-07-04',time:'11:00'},{id:'M52',round:'R32',label:'試合52',date:'2026-07-04',time:'14:00'},
+  {id:'M53',round:'R32',label:'試合53',date:'2026-07-05',time:'04:00'},{id:'M54',round:'R32',label:'試合54',date:'2026-07-05',time:'08:00'},
+  {id:'M55',round:'R32',label:'試合55',date:'2026-07-05',time:'11:00'},{id:'M56',round:'R32',label:'試合56',date:'2026-07-05',time:'14:00'},
+  {id:'M57',round:'R32',label:'試合57',date:'2026-07-06',time:'04:00'},{id:'M58',round:'R32',label:'試合58',date:'2026-07-06',time:'08:00'},
+  {id:'M59',round:'R32',label:'試合59',date:'2026-07-06',time:'11:00'},{id:'M60',round:'R32',label:'試合60',date:'2026-07-06',time:'14:00'},
+  {id:'M61',round:'R32',label:'試合61',date:'2026-07-07',time:'04:00'},{id:'M62',round:'R32',label:'試合62',date:'2026-07-07',time:'08:00'},
+  {id:'M63',round:'R32',label:'試合63',date:'2026-07-07',time:'11:00'},{id:'M64',round:'R32',label:'試合64',date:'2026-07-07',time:'14:00'},
+  // ベスト16
+  {id:'M65',round:'R16',label:'試合65',date:'2026-07-09',time:'04:00'},{id:'M66',round:'R16',label:'試合66',date:'2026-07-09',time:'10:00'},
+  {id:'M67',round:'R16',label:'試合67',date:'2026-07-10',time:'04:00'},{id:'M68',round:'R16',label:'試合68',date:'2026-07-10',time:'10:00'},
+  {id:'M69',round:'R16',label:'試合69',date:'2026-07-11',time:'04:00'},{id:'M70',round:'R16',label:'試合70',date:'2026-07-11',time:'10:00'},
+  {id:'M71',round:'R16',label:'試合71',date:'2026-07-12',time:'04:00'},{id:'M72',round:'R16',label:'試合72',date:'2026-07-12',time:'10:00'},
+  // ベスト8
+  {id:'M73',round:'QF',label:'準々決勝1',date:'2026-07-14',time:'04:00'},{id:'M74',round:'QF',label:'準々決勝2',date:'2026-07-14',time:'10:00'},
+  {id:'M75',round:'QF',label:'準々決勝3',date:'2026-07-15',time:'04:00'},{id:'M76',round:'QF',label:'準々決勝4',date:'2026-07-15',time:'10:00'},
+  // ベスト4
+  {id:'M77',round:'SF',label:'準決勝1',date:'2026-07-18',time:'10:00'},
+  {id:'M78',round:'SF',label:'準決勝2',date:'2026-07-19',time:'10:00'},
+  // 決勝
+  {id:'M3P',round:'F',label:'3位決定戦',date:'2026-07-22',time:'04:00'},
+  {id:'MF', round:'F',label:'🏆 決勝',  date:'2026-07-26',time:'04:00'},
+];
+
+let tourneyData = {}; // Firebase から取得: { matchId: { home:{name,flag}, away:{name,flag} } }
+let currentRoundIdx = 0;
+let editingMatchId = null;
+const tourneyRef = db.ref('tournament');
+
+// Firebase リアルタイム同期
+tourneyRef.on('value', snap => {
+  tourneyData = snap.val() || {};
+  if (document.getElementById('tourney-modal').classList.contains('open')) {
+    renderTourneyPanels();
+  }
+});
+
+function fmtMatchDate(dateStr, timeStr) {
+  const days = ['日','月','火','水','木','金','土'];
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const [h,min] = timeStr.split(':');
+  const dt = new Date(y, m-1, d);
+  return `${m}/${d}（${days[dt.getDay()]}）${h}:${min} JST`;
+}
+
+function initTourney() {
+  // タブ生成
+  const tabs = document.getElementById('round-tabs');
+  tabs.innerHTML = TOURNEY_ROUNDS.map((r,i) => `
+    <div class="round-tab ${i===0?'active':''}" onclick="switchRound(${i})">${r.label}</div>
+  `).join('');
+
+  // パネル生成
+  const panels = document.getElementById('round-panels');
+  panels.innerHTML = TOURNEY_ROUNDS.map(r => `
+    <div class="round-panel">
+      <div class="match-grid" id="panel-${r.key}"></div>
+    </div>
+  `).join('');
+
+  // チームドロップダウン（編集モーダル用）
+  buildTeamSelect(document.getElementById('edit-home'));
+  buildTeamSelect(document.getElementById('edit-away'));
+  // TBD オプション追加
+  ['edit-home','edit-away'].forEach(id => {
+    const sel = document.getElementById(id);
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = '— 未定 —';
+    sel.insertBefore(opt, sel.firstChild);
+    sel.value = '';
+  });
+
+  renderTourneyPanels();
+}
+
+function renderTourneyPanels() {
+  TOURNEY_ROUNDS.forEach(r => {
+    const panel = document.getElementById('panel-' + r.key);
+    if (!panel) return;
+    const matches = TOURNEY_MATCHES.filter(m => m.round === r.key);
+    panel.innerHTML = matches.map(m => {
+      const data = tourneyData[m.id] || {};
+      const home = data.home;
+      const away = data.away;
+      return `<div class="match-card" onclick="openEditMatch('${m.id}')">
+        <div class="match-label">${m.label}</div>
+        <div class="match-date">📅 ${fmtMatchDate(m.date, m.time)}</div>
+        <div class="match-teams">
+          <div class="match-team">
+            <div class="match-team-flag">${home ? home.flag : '🏳️'}</div>
+            <div class="match-team-name ${home?'':'tbd'}">${home ? home.name : 'TBD'}</div>
+          </div>
+          <div class="match-vs">VS</div>
+          <div class="match-team">
+            <div class="match-team-flag">${away ? away.flag : '🏳️'}</div>
+            <div class="match-team-name ${away?'':'tbd'}">${away ? away.name : 'TBD'}</div>
+          </div>
+        </div>
+        <div class="match-edit-hint">✏️ タップして編集</div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function switchRound(idx) {
+  currentRoundIdx = idx;
+  // タブ更新
+  document.querySelectorAll('.round-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  // パネルスライド
+  document.getElementById('round-panels').style.transform = `translateX(-${idx * 100}%)`;
+}
+
+function openEditMatch(matchId) {
+  editingMatchId = matchId;
+  const m = TOURNEY_MATCHES.find(x => x.id === matchId);
+  const data = tourneyData[matchId] || {};
+  document.getElementById('edit-match-title').textContent = `✏️ ${m.label} を編集`;
+  document.getElementById('edit-home').value = data.home ? data.home.name : '';
+  document.getElementById('edit-away').value = data.away ? data.away.name : '';
+  openModal('edit-match-modal');
+}
+
+function saveMatch() {
+  const homeName = document.getElementById('edit-home').value;
+  const awayName = document.getElementById('edit-away').value;
+  const homeTeam = homeName ? TEAMS.find(t => t.name === homeName) : null;
+  const awayTeam = awayName ? TEAMS.find(t => t.name === awayName) : null;
+  tourneyRef.child(editingMatchId).set({
+    home: homeTeam ? { name: homeTeam.name, flag: homeTeam.flag } : null,
+    away: awayTeam ? { name: awayTeam.name, flag: awayTeam.flag } : null,
+  }).then(() => {
+    showToast('保存しました');
+    closeModal('edit-match-modal');
+  }).catch(err => showToast('エラー: ' + err.message));
+}
+
+// ─── グループリーグ描画（ベット者名付き） ─────────────────────────────────
 function buildGroupGrid() {
   const grid = document.getElementById('group-grid');
   const groups = [...new Set(TEAMS.map(t => t.g))].sort();
   grid.innerHTML = groups.map(g => {
     const teams = TEAMS.filter(t => t.g === g);
-    const rows = teams.map(t => `
-      <tr>
-        <td><div class="team-cell"><span class="team-flag-sm">${t.flag}</span>${t.name}</div></td>
+    const rows = teams.map(t => {
+      // このチームに賭けている人を取得（最新エントリーのみ）
+      const bettors = [...new Set(
+        entries.filter(e => e.team === t.name && !e.retired).map(e => e.name)
+      )];
+      const bettorChips = bettors.length
+        ? `<div class="bettors-row">${bettors.map(n => `<span class="bettor-chip">${n}</span>`).join('')}</div>`
+        : '';
+      return `<tr>
+        <td>
+          <div class="team-cell">
+            <div class="team-name-row"><span class="team-flag-sm">${t.flag}</span>${t.name}</div>
+            ${bettorChips}
+          </div>
+        </td>
         <td class="num">—</td>
         <td class="num">—</td>
         <td class="num">—</td>
         <td class="num">—</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
     return `<div class="group-block">
       <div class="group-header">グループ ${g}</div>
       <table class="group-table">
@@ -668,7 +915,6 @@ function buildGroupGrid() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 buildTeamSelect(document.getElementById('f-team'));
-buildGroupGrid();
 </script>
 </body>
 </html>
