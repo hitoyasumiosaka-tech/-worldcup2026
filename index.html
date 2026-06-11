@@ -76,11 +76,13 @@
   .bettor-chip { background:var(--gold-dim); border:1px solid var(--gold); border-radius:4px; padding:1px 6px; font-size:10px; color:var(--gold); font-weight:600; }
 
   /* RULE IMAGE MODAL */
-  .rule-modal { max-width:500px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
-  .rule-modal-body { flex:1; overflow-y:auto; padding:20px; -webkit-overflow-scrolling:touch; }
-  .rule-modal-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
-  .rule-img { width:100%; border-radius:8px; display:block; }
-  .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; text-align:center; }
+  .rule-modal { width:96vw; max-width:520px; max-height:92vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  .rule-modal-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .rule-modal-footer { padding:16px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+  .rule-img { width:100%; display:block; }
+  .rule-close-btn { width:100%; padding:16px; font-size:16px; font-weight:700; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:var(--rs); cursor:pointer; font-family:inherit; letter-spacing:.05em; }
+  .rule-close-btn:active { opacity:.7; }
+  .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; text-align:center; margin:16px; }
 
   /* TOURNAMENT MODAL */
   .tourney-modal { max-width:960px; max-height:92vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
@@ -282,7 +284,7 @@
     </button>
   </div>
 
-  <!-- ADD FORM -->
+  <!-- ADD / DELETE FORM -->
   <div class="stitle">ベットを追加</div>
   <div class="add-card">
     <div class="add-row">
@@ -309,7 +311,7 @@
         </select>
       </div>
       <div class="field">
-        <label>応援チーム</label>
+        <label>賭けるチーム</label>
         <select id="f-team">
           <option value="" disabled selected>選択...</option>
         </select>
@@ -318,6 +320,29 @@
         <div class="amount-display" id="f-amount-disp">— 円</div>
         <button class="btn btn-add" onclick="addEntry()">＋ 追加</button>
       </div>
+    </div>
+  </div>
+
+  <!-- DELETE FORM -->
+  <div class="stitle">ベットを削除</div>
+  <div class="add-card">
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;">
+      <div class="field">
+        <label>名前</label>
+        <select id="d-name" onchange="onDeleteNameChange()">
+          <option value="" disabled selected>選択...</option>
+          <option>慧介</option><option>健人</option><option>八尋</option><option>竣平</option>
+          <option>拓海</option><option>宏樹</option><option>海斗</option><option>健太</option>
+          <option>いーくん</option><option>りるちゃん</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>エントリー</label>
+        <select id="d-entry">
+          <option value="" disabled selected>名前を先に選択</option>
+        </select>
+      </div>
+      <button class="btn btn-danger" style="padding:11px 20px;font-size:14px;" onclick="deleteSelectedEntry()">削除</button>
     </div>
   </div>
 
@@ -331,10 +356,10 @@
     <table class="main-table">
       <thead>
         <tr>
-          <th>#</th><th>名前</th><th>回数</th><th>金額</th><th>応援チーム</th><th>状態</th><th></th>
+          <th>#</th><th>名前</th><th>回数</th><th>金額</th><th>賭けるチーム</th><th>状態</th><th>日時</th><th></th>
         </tr>
       </thead>
-      <tbody id="main-tbody"><tr><td colspan="7" class="loading">接続中...</td></tr></tbody>
+      <tbody id="main-tbody"><tr><td colspan="8" class="loading">接続中...</td></tr></tbody>
     </table>
   </div>
 
@@ -372,7 +397,7 @@
       </div>
     </div>
     <div class="rule-modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('rule-modal')" style="width:100%;padding:12px;">閉じる</button>
+      <button class="rule-close-btn" onclick="closeModal('rule-modal')">✕ 閉じる</button>
     </div>
   </div>
 </div>
@@ -439,13 +464,18 @@
 
 <!-- RETIRE MODAL -->
 <div class="modal-overlay" id="retire-modal">
-  <div class="modal">
-    <h2>🚪 棄権確認</h2>
-    <div id="retire-info" style="background:var(--red-dim);border:1px solid var(--red);border-radius:var(--rs);padding:12px;margin-bottom:16px;font-size:13px;color:var(--red);line-height:1.6;"></div>
-    <p style="font-size:13px;color:var(--text-dim);line-height:1.7;">棄権すると以降のベットに参加できません。<br>累計掛け金はプールに残ります。</p>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('retire-modal')">戻る</button>
-      <button class="btn btn-danger" onclick="confirmRetire()">棄権する</button>
+  <div class="modal" style="max-width:420px;">
+    <h2>🚪 本当に棄権しますか？</h2>
+    <div id="retire-info" style="background:var(--red-dim);border:1px solid var(--red);border-radius:var(--rs);padding:12px;margin-bottom:20px;font-size:13px;color:var(--red);line-height:1.6;"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;font-size:15px;font-weight:700;text-align:center;">あなたは本当に棄権するんですか？</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;font-size:15px;font-weight:700;text-align:center;">ほんまにいいんですか？</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;font-size:15px;font-weight:700;text-align:center;">ここでやめていいんですか？</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:16px;">棄権後は以降のベットに参加できません。累計掛け金はプールに残ります。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <button class="btn btn-ghost" onclick="closeModal('retire-modal')" style="padding:14px;font-size:15px;font-weight:700;">いいえ</button>
+      <button class="btn btn-danger" onclick="confirmRetire()" style="padding:14px;font-size:15px;font-weight:700;">はい、棄権します</button>
     </div>
   </div>
 </div>
@@ -617,10 +647,32 @@ function confirmRetire() {
 function deleteEntry(key) {
   const dot = document.getElementById('sync-dot');
   dot.className = 'sync-dot syncing';
-  entriesRef.child(key).remove().catch(err => {
+  entriesRef.child(key).update({ deletedAt: Date.now() }).catch(err => {
     showToast('エラー: ' + err.message);
     dot.className = 'sync-dot online';
   });
+}
+
+function onDeleteNameChange() {
+  const name = document.getElementById('d-name').value;
+  const sel = document.getElementById('d-entry');
+  const active = entries.filter(e => e.name === name && !e.deletedAt);
+  sel.innerHTML = active.length
+    ? active.map(e => `<option value="${e._key}">${e.round}回目 — ${e.flag}${e.team} ¥${fmt(e.amount)}</option>`).join('')
+    : '<option value="" disabled>エントリーなし</option>';
+}
+
+function deleteSelectedEntry() {
+  const name = document.getElementById('d-name').value;
+  const key = document.getElementById('d-entry').value;
+  if (!name) { showToast('名前を選択してください'); return; }
+  if (!key) { showToast('エントリーを選択してください'); return; }
+  const e = entries.find(e => e._key === key);
+  if (!e) { showToast('エントリーが見つかりません'); return; }
+  deleteEntry(key);
+  showToast(`${e.name} ${e.round}回目を削除しました`);
+  document.getElementById('d-name').value = '';
+  document.getElementById('d-entry').innerHTML = '<option value="" disabled selected>名前を先に選択</option>';
 }
 
 function resetForm() {
@@ -643,29 +695,41 @@ function render() {
   renderTeams();
 }
 
+function activeEntries() { return entries.filter(e => !e.deletedAt); }
+function deletedEntries() { return entries.filter(e => e.deletedAt); }
+
+function fmtTime(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
 function renderPool() {
-  const total = entries.reduce((s,e) => s + e.amount, 0);
-  const people = new Set(entries.map(e => e.name));
-  const retiredPeople = new Set(entries.filter(e => e.retired).map(e => e.name));
+  const ae = activeEntries();
+  const total = ae.reduce((s,e) => s + e.amount, 0);
+  const people = new Set(ae.map(e => e.name));
+  const retiredPeople = new Set(ae.filter(e => e.retired).map(e => e.name));
   document.getElementById('total-pool').textContent = fmt(total);
   document.getElementById('header-pool').textContent = '¥' + fmt(total);
   document.getElementById('active-count').textContent = people.size - retiredPeople.size;
   document.getElementById('retired-count').textContent = retiredPeople.size;
-  document.getElementById('entry-count').textContent = entries.length;
+  document.getElementById('entry-count').textContent = ae.length;
 }
 
 function renderStats() {
-  const people = new Set(entries.map(e => e.name));
+  const ae = activeEntries();
+  const people = new Set(ae.map(e => e.name));
   document.getElementById('s-players').textContent = people.size;
-  document.getElementById('s-entries').textContent = entries.length;
+  document.getElementById('s-entries').textContent = ae.length;
 }
 
 function renderPlayerGrid() {
   const grid = document.getElementById('player-grid');
-  if (!entries.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">まだエントリーがありません</div>'; return; }
+  const ae = activeEntries();
+  if (!ae.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">まだエントリーがありません</div>'; return; }
   const map = {};
-  NAMES.forEach(n => { if (entries.find(e => e.name === n)) map[n] = []; });
-  entries.forEach(e => { if (map[e.name]) map[e.name].push(e); });
+  NAMES.forEach(n => { if (ae.find(e => e.name === n)) map[n] = []; });
+  ae.forEach(e => { if (map[e.name]) map[e.name].push(e); });
   grid.innerHTML = Object.entries(map).map(([name, ents]) => {
     const total = ents.reduce((s,e) => s + e.amount, 0);
     const retired = ents.some(e => e.retired);
@@ -694,27 +758,37 @@ function renderPlayerGrid() {
 
 function renderMainTable() {
   const tbody = document.getElementById('main-tbody');
-  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">まだベット記録がありません</td></tr>'; return; }
-  const sorted = [...entries].sort((a,b) => {
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">まだベット記録がありません</td></tr>'; return; }
+  const active = activeEntries().sort((a,b) => {
     const ni = NAMES.indexOf(a.name) - NAMES.indexOf(b.name);
     return ni !== 0 ? ni : a.round - b.round;
   });
-  tbody.innerHTML = sorted.map((e,i) => `
-    <tr class="${e.retired?'retired-row':''}">
+  const deleted = deletedEntries().sort((a,b) => b.deletedAt - a.deletedAt);
+  const allRows = [...active, ...deleted];
+  tbody.innerHTML = allRows.map((e,i) => {
+    const isDel = !!e.deletedAt;
+    const rowStyle = isDel ? 'style="opacity:0.5;text-decoration:line-through;background:rgba(255,80,80,0.05);"' : '';
+    const statusColor = isDel ? 'var(--red)' : (e.retired ? 'var(--red)' : 'var(--green)');
+    const statusText = isDel ? '削除済' : (e.retired ? '棄権済' : '参加中');
+    const timeTs = isDel ? e.deletedAt : (e.createdAt || null);
+    return `
+    <tr class="${e.retired && !isDel ? 'retired-row' : ''}" ${rowStyle}>
       <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
       <td style="font-weight:700;">${e.name}</td>
       <td><span class="round-badge">${e.round}回目</span></td>
       <td class="amt-cell">¥${fmt(e.amount)}</td>
       <td><span style="font-size:16px;">${e.flag}</span> ${e.team}</td>
-      <td style="font-size:12px;color:${e.retired?'var(--red)':'var(--green)'};">${e.retired?'棄権済':'参加中'}</td>
-      <td><button class="del-btn" onclick="deleteEntry('${e._key}')" title="削除">✕</button></td>
-    </tr>`).join('');
+      <td style="font-size:12px;color:${statusColor};">${statusText}</td>
+      <td style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${fmtTime(timeTs)}</td>
+      <td>${isDel ? '' : `<button class="del-btn" onclick="deleteEntry('${e._key}')" title="削除">✕</button>`}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderTeams() {
   const grid = document.getElementById('teams-grid');
   const map = {};
-  entries.forEach(e => {
+  activeEntries().forEach(e => {
     if (!map[e.team]) map[e.team] = { flag:e.flag, total:0, bettors:[] };
     map[e.team].total += e.amount;
     const b = map[e.team].bettors.find(b => b.name === e.name);
