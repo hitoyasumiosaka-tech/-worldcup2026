@@ -593,7 +593,7 @@ function addEntry() {
 
   // 棄権処理
   if (roundVal === 'retire') {
-    const personEntries = entries.filter(e => e.name === name);
+    const personEntries = activeEntries().filter(e => e.name === name);
     if (!personEntries.length) { showToast(`${name} のエントリーがありません`); return; }
     if (personEntries.some(e => e.retired)) { showToast(`${name} はすでに棄権済みです`); return; }
     const amt = personEntries.reduce((s,e) => s + e.amount, 0);
@@ -632,13 +632,21 @@ function addEntry() {
 }
 
 function confirmRetire() {
-  const updates = {};
-  pendingRetireKeys.forEach(k => { updates[k + '/retired'] = true; });
+  if (!retireTarget || !pendingRetireKeys.length) {
+    showToast('エラー: 棄権対象が見つかりません');
+    closeModal('retire-modal');
+    return;
+  }
   const dot = document.getElementById('sync-dot');
   dot.className = 'sync-dot syncing';
-  entriesRef.update(updates).then(() => {
-    showToast(`${retireTarget} さんが棄権しました`);
+  const name = retireTarget;
+  Promise.all(
+    pendingRetireKeys.map(k => entriesRef.child(k).update({ retired: true }))
+  ).then(() => {
+    showToast(`${name} さんが棄権しました 🚪`);
     closeModal('retire-modal');
+    retireTarget = null;
+    pendingRetireKeys = [];
   }).catch(err => {
     showToast('エラー: ' + err.message);
     dot.className = 'sync-dot online';
