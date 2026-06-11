@@ -304,7 +304,17 @@
     </button>
   </div>
 
-  <!-- ADD / DELETE FORM -->
+  <!-- COUNTDOWN BANNER -->
+  <div id="countdown-banner" style="display:none;">
+    <div id="cd-inner">
+      <div id="cd-lock">🔒</div>
+      <div id="cd-label">6月12日 0:00 に公開されます</div>
+      <div id="cd-time">-- : -- : --</div>
+      <div id="cd-sub">開幕までもう少し！お楽しみに 🌍⚽</div>
+    </div>
+  </div>
+
+  <!-- ADD FORM -->
   <div class="stitle">ベットを追加</div>
   <div class="add-card">
     <div class="add-row">
@@ -343,6 +353,10 @@
     </div>
   </div>
 
+  <!-- REVEAL SECTION (hidden until REVEAL_TIME) -->
+  <div id="reveal-section">
+  <div id="reveal-overlay"></div>
+
   <!-- DELETE FORM -->
   <div class="stitle">ベットを削除</div>
   <div class="add-card">
@@ -365,20 +379,6 @@
       <button class="btn btn-danger" style="padding:11px 20px;font-size:14px;" onclick="deleteSelectedEntry()">削除</button>
     </div>
   </div>
-
-  <!-- COUNTDOWN BANNER -->
-  <div id="countdown-banner" style="display:none;">
-    <div id="cd-inner">
-      <div id="cd-lock">🔒</div>
-      <div id="cd-label">6月12日 0:00 に公開されます</div>
-      <div id="cd-time">-- : -- : --</div>
-      <div id="cd-sub">開幕までもう少し！お楽しみに 🌍⚽</div>
-    </div>
-  </div>
-
-  <!-- REVEAL SECTION (hidden until REVEAL_TIME) -->
-  <div id="reveal-section">
-  <div id="reveal-overlay"></div>
 
     <!-- PARTICIPANT STATUS -->
     <div class="stitle">参加者ステータス</div>
