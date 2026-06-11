@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA WC 2026 — ベット管理</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26; --border: #2a2a40;
+    --gold: #e8b84b; --gold-dim: rgba(232,184,75,0.13);
+    --red: #e84b4b; --red-dim: rgba(232,75,75,0.12);
+    --green: #4be87a; --green-dim: rgba(75,232,122,0.1);
+    --text: #f0f0f8; --text-dim: #7070a0; --text-muted: #35354e;
+    --r: 10px; --rs: 6px;
+  }
+  body { background:var(--bg); color:var(--text); font-family:'Inter','Noto Sans JP',sans-serif; min-height:100vh; font-size:14px; line-height:1.5; }
+
+  /* HEADER */
+  header { border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:rgba(10,10,15,0.95); backdrop-filter:blur(12px); z-index:100; }
+  .logo { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); }
+  .logo span { color:var(--text-dim); font-weight:300; }
+  .header-right { display:flex; align-items:center; gap:12px; }
+  .pool-badge { background:var(--gold-dim); border:1px solid var(--gold); border-radius:20px; padding:6px 18px; font-size:14px; font-weight:800; color:var(--gold); }
+  .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0; transition:background .3s; }
+  .sync-dot.online { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .sync-dot.syncing { background:var(--gold); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* LAYOUT */
+  .app { max-width:1080px; margin:0 auto; padding:24px 16px 80px; }
+
+  /* POOL HERO */
+  .pool-hero { text-align:center; padding:36px 0 28px; }
+  .pool-label { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+  .pool-amount { font-size:clamp(52px,9vw,84px); font-weight:900; color:var(--gold); letter-spacing:-.03em; line-height:1; }
+  .pool-unit { font-size:.34em; font-weight:500; vertical-align:top; padding-top:.32em; }
+  .pool-sub-row { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+  .pool-pill { display:flex; align-items:center; gap:8px; border-radius:10px; padding:10px 20px; border:1px solid var(--border); background:var(--surface); }
+  .pill-val { font-size:24px; font-weight:900; line-height:1; color:var(--text); }
+  .pill-lbl { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:28px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 12px; text-align:center; }
+  .stat-card .val { font-size:22px; font-weight:800; }
+  .stat-card .lbl { font-size:11px; color:var(--text-dim); margin-top:2px; letter-spacing:.04em; }
+
+  /* ACTION BUTTONS */
+  .action-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:28px; }
+  .action-btn { background:#fff; border:2px solid #1a1a5e; border-radius:var(--r); padding:14px 10px; text-align:center; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; color:#1a1a5e; transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .action-btn:hover { background:#f0f0ff; transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+  .action-btn:active { transform:translateY(0); }
+  .action-btn .ab-icon { font-size:22px; }
+  @media(max-width:500px) { .action-btns { grid-template-columns:1fr; } }
+
+  /* GROUP LEAGUE MODAL */
+  .group-modal { max-width:700px; max-height:85vh; overflow-y:auto; }
+  .group-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+  .group-block { background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); overflow:hidden; }
+  .group-header { background:var(--gold-dim); border-bottom:1px solid var(--border); padding:8px 14px; font-size:11px; font-weight:800; letter-spacing:.15em; color:var(--gold); text-transform:uppercase; }
+  .group-table { width:100%; border-collapse:collapse; }
+  .group-table th { font-size:10px; color:var(--text-muted); padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); letter-spacing:.08em; }
+  .group-table th.num { text-align:center; }
+  .group-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  .group-table tr:last-child td { border-bottom:none; }
+  .group-table td.num { text-align:center; color:var(--text-dim); font-size:12px; }
+  .group-table .team-cell { display:flex; align-items:center; gap:7px; font-weight:600; }
+  .group-table .team-flag-sm { font-size:18px; }
+
+  /* RULE IMAGE MODAL */
+  .rule-modal { max-width:500px; padding:20px; }
+  .rule-img { width:100%; border-radius:8px; display:block; }
+  .rule-img-wrap { text-align:center; }
+  .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; }
+
+  /* TOURNAMENT TOAST */
+
+  /* SECTION TITLE */
+  .stitle { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .stitle::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ADD FORM */
+  .add-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:20px; margin-bottom:28px; }
+  .add-row { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end; }
+  .field label { display:block; font-size:11px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
+  .field select {
+    width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs);
+    padding:10px 12px; color:var(--text); font-size:14px; font-family:inherit; outline:none;
+    appearance:none; -webkit-appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%237070a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center; padding-right:32px;
+  }
+  .field select:focus { border-color:var(--gold); }
+  .amount-display { background:var(--gold-dim); border:1px solid var(--gold); border-radius:var(--rs); padding:10px 14px; font-size:16px; font-weight:800; color:var(--gold); text-align:center; white-space:nowrap; }
+
+  /* BUTTONS */
+  .btn { border:none; border-radius:var(--rs); padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity .12s; white-space:nowrap; }
+  .btn:hover { opacity:.82; } .btn:active { opacity:.6; }
+  .btn-primary { background:var(--gold); color:#0a0a0f; }
+  .btn-add { background:var(--green-dim); color:var(--green); border:1px solid var(--green); padding:11px 22px; font-size:14px; }
+  .btn-danger { background:var(--red-dim); color:var(--red); border:1px solid var(--red); }
+  .btn-ghost { background:var(--surface2); color:var(--text-dim); border:1px solid var(--border); }
+  .btn:disabled { opacity:.3; cursor:not-allowed; }
+
+  /* PLAYER STATUS CARDS */
+  .player-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-bottom:28px; }
+  .pcard { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; display:flex; }
+  .pcard.retired { opacity:.45; border-style:dashed; }
+  .pcard-left { flex:1; padding:14px; border-right:1px solid var(--border); min-width:0; }
+  .pcard-right { width:44%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 8px; gap:6px; background:var(--surface2); }
+  .pcard-name { font-weight:700; font-size:15px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+  .pcard-name .rtag { font-size:10px; color:var(--red); background:var(--red-dim); border:1px solid var(--red); border-radius:4px; padding:1px 5px; font-weight:600; }
+  .pcard-amt { font-size:22px; font-weight:900; color:var(--gold); line-height:1; }
+  .pcard-round-label { font-size:12px; color:var(--text-dim); margin-top:4px; margin-bottom:10px; }
+  .pcard-round-label b { color:var(--text); font-size:13px; }
+  .pcard-flag-big { font-size:48px; line-height:1; }
+  .pcard-team-name { font-size:12px; font-weight:700; color:var(--text); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+  .entry-timeline { display:flex; flex-direction:column; gap:4px; border-top:1px solid var(--border); padding-top:8px; }
+  .entry-row { display:flex; align-items:center; gap:7px; font-size:11px; }
+  .entry-dot { width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; background:var(--surface2); border:1px solid var(--border); color:var(--text-muted); }
+  .entry-dot.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
+  .entry-row-team { color:var(--text-dim); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .entry-row-amt { font-weight:700; color:var(--text); white-space:nowrap; }
+
+  /* MAIN TABLE */
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow-x:auto; margin-bottom:28px; -webkit-overflow-scrolling:touch; }
+  .main-table { width:100%; border-collapse:collapse; min-width:540px; }
+  .main-table th { background:var(--surface2); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); font-weight:600; padding:11px 14px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .main-table td { padding:11px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  .main-table tr:last-child td { border-bottom:none; }
+  .main-table tr:hover td { background:rgba(255,255,255,.02); }
+  .main-table .round-badge { display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; color:var(--text-dim); }
+  .main-table .amt-cell { font-weight:800; color:var(--gold); font-size:14px; }
+  .main-table .retired-row td { opacity:.45; }
+  .main-table .del-btn { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:14px; padding:2px 6px; border-radius:4px; transition:color .12s; }
+  .main-table .del-btn:hover { color:var(--red); }
+
+  /* TEAM BREAKDOWN */
+  .teams-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; margin-bottom:28px; }
+  .team-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px; }
+  .team-name { font-weight:700; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+  .team-flag { font-size:20px; }
+  .team-total { font-size:20px; font-weight:900; color:var(--gold); }
+  .team-total .unit { font-size:12px; font-weight:500; color:var(--text-dim); }
+  .team-bettors { margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; }
+  .btag { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:2px 7px; font-size:11px; color:var(--text-dim); }
+  .btag b { color:var(--text); }
+
+  /* BET AMOUNT TABLE */
+  .bet-ref { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+  .bet-ref table { width:100%; border-collapse:collapse; }
+  .bet-ref th { background:var(--surface2); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); font-weight:600; padding:10px 16px; text-align:left; border-bottom:1px solid var(--border); }
+  .bet-ref td { padding:10px 16px; border-bottom:1px solid var(--border); font-size:13px; }
+  .bet-ref tr:last-child td { border-bottom:none; }
+  .bet-ref td:nth-child(2) { font-weight:800; color:var(--gold); }
+  .bet-ref td:nth-child(3) { color:var(--text-dim); font-size:12px; }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.78); z-index:200; align-items:center; justify-content:center; padding:16px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:28px; width:100%; max-width:400px; }
+  .modal h2 { font-size:18px; font-weight:700; margin-bottom:18px; }
+  .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+
+  /* TOAST */
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:10px 20px; font-size:13px; font-weight:500; opacity:0; transition:all .22s; z-index:300; white-space:nowrap; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .empty { text-align:center; padding:32px; color:var(--text-muted); font-size:13px; }
+  .loading { text-align:center; padding:48px; color:var(--text-dim); font-size:14px; }
+
+  @media(max-width:700px) {
+    .add-row { grid-template-columns:1fr 1fr; }
+    .stats-row { grid-template-columns:1fr 1fr; }
+  }
+  @media(max-width:500px) {
+    .add-row { grid-template-columns:1fr; }
+    .stats-row { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FIFA W杯 <span>2026</span></div>
+  <div class="header-right">
+    <div class="sync-dot" id="sync-dot" title="接続状態"></div>
+    <div class="pool-badge" id="header-pool">¥0</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- POOL HERO -->
+  <div class="pool-hero">
+    <div class="pool-label">Total Pool</div>
+    <div class="pool-amount"><span class="pool-unit">¥</span><span id="total-pool">0</span></div>
+    <div class="pool-sub-row">
+      <div class="pool-pill"><span class="pill-val" id="active-count">0</span><span class="pill-lbl">参加中</span></div>
+      <div class="pool-pill"><span class="pill-val" id="retired-count">0</span><span class="pill-lbl">棄権</span></div>
+      <div class="pool-pill"><span class="pill-val" id="entry-count">0</span><span class="pill-lbl">エントリー</span></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="val" id="s-players">0</div><div class="lbl">参加者数</div></div>
+    <div class="stat-card"><div class="val" id="s-entries">0</div><div class="lbl">ベット件数</div></div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="action-btns">
+    <button class="action-btn" onclick="openModal('rule-modal')">
+      <span class="ab-icon">📋</span>ルールを見る
+    </button>
+    <button class="action-btn" onclick="openModal('group-modal')">
+      <span class="ab-icon">⚽</span>グループリーグを見る
+    </button>
+    <button class="action-btn" onclick="showToast('🏆 開幕後公開予定です')">
+      <span class="ab-icon">🏆</span>トーナメントを見る
+    </button>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="stitle">ベットを追加</div>
+  <div class="add-card">
+    <div class="add-row">
+      <div class="field">
+        <label>名前</label>
+        <select id="f-name" onchange="onFormChange()">
+          <option value="" disabled selected>選択...</option>
+          <option>慧介</option><option>健人</option><option>八尋</option><option>竣平</option>
+          <option>拓海</option><option>宏樹</option><option>海斗</option><option>健太</option>
+          <option>いーくん</option><option>りるちゃん</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>回数（ラウンド）</label>
+        <select id="f-round" onchange="onFormChange()">
+          <option value="" disabled selected>選択...</option>
+          <option value="1">1回目　¥10,000</option>
+          <option value="2">2回目　¥20,000</option>
+          <option value="3">3回目　¥30,000</option>
+          <option value="4">4回目　¥40,000</option>
+          <option value="5">5回目　¥50,000</option>
+          <option value="6">6回目　¥60,000</option>
+          <option value="retire">🚪 棄権</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>応援チーム</label>
+        <select id="f-team">
+          <option value="" disabled selected>選択...</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="amount-display" id="f-amount-disp">— 円</div>
+        <button class="btn btn-add" onclick="addEntry()">＋ 追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANT STATUS -->
+  <div class="stitle">参加者ステータス</div>
+  <div class="player-grid" id="player-grid"><div class="loading">接続中...</div></div>
+
+  <!-- MAIN RECORD TABLE -->
+  <div class="stitle">全ベット記録</div>
+  <div class="table-wrap">
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th>#</th><th>名前</th><th>回数</th><th>金額</th><th>応援チーム</th><th>状態</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="main-tbody"><tr><td colspan="7" class="loading">接続中...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- TEAM BREAKDOWN -->
+  <div class="stitle">チーム別プール</div>
+  <div class="teams-grid" id="teams-grid"></div>
+
+  <!-- BET AMOUNT REFERENCE -->
+  <div class="stitle">ベット金額テーブル</div>
+  <div class="bet-ref">
+    <table>
+      <thead><tr><th>回数</th><th>ベット金額</th><th>備考</th></tr></thead>
+      <tbody>
+        <tr><td>1回目</td><td>¥10,000</td><td>初回</td></tr>
+        <tr><td>2回目</td><td>¥20,000</td><td>+¥10,000</td></tr>
+        <tr><td>3回目</td><td>¥30,000</td><td>+¥20,000</td></tr>
+        <tr><td>4回目</td><td>¥40,000</td><td>+¥30,000</td></tr>
+        <tr><td>5回目</td><td>¥50,000</td><td>+¥40,000</td></tr>
+        <tr><td>6回目</td><td>¥60,000</td><td>+¥50,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- RULE MODAL -->
+<div class="modal-overlay" id="rule-modal">
+  <div class="modal rule-modal">
+    <div class="rule-img-wrap">
+      <img src="rule.png" alt="ルール表" class="rule-img"
+        onerror="this.style.display='none';document.getElementById('rule-placeholder').style.display='block'">
+      <div id="rule-placeholder" class="rule-img-placeholder" style="display:none;">
+        📋 ルール画像が見つかりません<br>
+        <span style="font-size:12px;">「rule.png」をワールドカップフォルダに保存してください</span>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('rule-modal')" style="width:100%;padding:12px;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP MODAL -->
+<div class="modal-overlay" id="group-modal">
+  <div class="modal group-modal">
+    <h2 style="margin-bottom:16px;">⚽ グループリーグ</h2>
+    <div class="group-grid" id="group-grid"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn btn-ghost" onclick="closeModal('group-modal')" style="width:100%;padding:12px;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- RETIRE MODAL -->
+<div class="modal-overlay" id="retire-modal">
+  <div class="modal">
+    <h2>🚪 棄権確認</h2>
+    <div id="retire-info" style="background:var(--red-dim);border:1px solid var(--red);border-radius:var(--rs);padding:12px;margin-bottom:16px;font-size:13px;color:var(--red);line-height:1.6;"></div>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.7;">棄権すると以降のベットに参加できません。<br>累計掛け金はプールに残ります。</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('retire-modal')">戻る</button>
+      <button class="btn btn-danger" onclick="confirmRetire()">棄権する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ─── Firebase 設定 ────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyD7c-1raWKh_DxEqEENrTvCK01YRuzLPzA",
+  authDomain: "worldcup2026-8e510.firebaseapp.com",
+  databaseURL: "https://worldcup2026-8e510-default-rtdb.firebaseio.com",
+  projectId: "worldcup2026-8e510",
+  storageBucket: "worldcup2026-8e510.firebasestorage.app",
+  messagingSenderId: "534732770509",
+  appId: "1:534732770509:web:05e42d120aa59e88b1ed84"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const entriesRef = db.ref('entries');
+
+// ─── 48チームデータ ────────────────────────────────────────────────────────
+const TEAMS = [
+  {name:'メキシコ',flag:'🇲🇽',g:'A'},{name:'南アフリカ',flag:'🇿🇦',g:'A'},{name:'韓国',flag:'🇰🇷',g:'A'},{name:'チェコ',flag:'🇨🇿',g:'A'},
+  {name:'カナダ',flag:'🇨🇦',g:'B'},{name:'ボスニア・ヘルツェゴビナ',flag:'🇧🇦',g:'B'},{name:'カタール',flag:'🇶🇦',g:'B'},{name:'スイス',flag:'🇨🇭',g:'B'},
+  {name:'ブラジル',flag:'🇧🇷',g:'C'},{name:'モロッコ',flag:'🇲🇦',g:'C'},{name:'ハイチ',flag:'🇭🇹',g:'C'},{name:'スコットランド',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',g:'C'},
+  {name:'アメリカ',flag:'🇺🇸',g:'D'},{name:'パラグアイ',flag:'🇵🇾',g:'D'},{name:'オーストラリア',flag:'🇦🇺',g:'D'},{name:'トルコ',flag:'🇹🇷',g:'D'},
+  {name:'ドイツ',flag:'🇩🇪',g:'E'},{name:'キュラソー',flag:'🇨🇼',g:'E'},{name:'コートジボワール',flag:'🇨🇮',g:'E'},{name:'エクアドル',flag:'🇪🇨',g:'E'},
+  {name:'オランダ',flag:'🇳🇱',g:'F'},{name:'日本',flag:'🇯🇵',g:'F'},{name:'スウェーデン',flag:'🇸🇪',g:'F'},{name:'チュニジア',flag:'🇹🇳',g:'F'},
+  {name:'ベルギー',flag:'🇧🇪',g:'G'},{name:'エジプト',flag:'🇪🇬',g:'G'},{name:'イラン',flag:'🇮🇷',g:'G'},{name:'ニュージーランド',flag:'🇳🇿',g:'G'},
+  {name:'スペイン',flag:'🇪🇸',g:'H'},{name:'カーボベルデ',flag:'🇨🇻',g:'H'},{name:'サウジアラビア',flag:'🇸🇦',g:'H'},{name:'ウルグアイ',flag:'🇺🇾',g:'H'},
+  {name:'フランス',flag:'🇫🇷',g:'I'},{name:'セネガル',flag:'🇸🇳',g:'I'},{name:'イラク',flag:'🇮🇶',g:'I'},{name:'ノルウェー',flag:'🇳🇴',g:'I'},
+  {name:'アルゼンチン',flag:'🇦🇷',g:'J'},{name:'アルジェリア',flag:'🇩🇿',g:'J'},{name:'オーストリア',flag:'🇦🇹',g:'J'},{name:'ヨルダン',flag:'🇯🇴',g:'J'},
+  {name:'ポルトガル',flag:'🇵🇹',g:'K'},{name:'コンゴ民主共和国',flag:'🇨🇩',g:'K'},{name:'ウズベキスタン',flag:'🇺🇿',g:'K'},{name:'コロンビア',flag:'🇨🇴',g:'K'},
+  {name:'イングランド',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',g:'L'},{name:'クロアチア',flag:'🇭🇷',g:'L'},{name:'ガーナ',flag:'🇬🇭',g:'L'},{name:'パナマ',flag:'🇵🇦',g:'L'},
+];
+
+const NAMES = ['慧介','健人','八尋','竣平','拓海','宏樹','海斗','健太','いーくん','りるちゃん'];
+const BET_AMT = [0, 10000, 20000, 30000, 40000, 50000, 60000];
+
+// ─── ローカルキャッシュ ────────────────────────────────────────────────────
+let entries = []; // Firebase から同期されるデータ
+let retireTarget = null;
+let pendingRetireKeys = [];
+
+// ─── 接続状態監視 ─────────────────────────────────────────────────────────
+db.ref('.info/connected').on('value', snap => {
+  const dot = document.getElementById('sync-dot');
+  if (snap.val()) {
+    dot.className = 'sync-dot online';
+    dot.title = 'リアルタイム接続中';
+  } else {
+    dot.className = 'sync-dot';
+    dot.title = 'オフライン';
+  }
+});
+
+// ─── リアルタイム同期 ─────────────────────────────────────────────────────
+entriesRef.on('value', snap => {
+  entries = [];
+  snap.forEach(child => {
+    entries.push({ _key: child.key, ...child.val() });
+  });
+  render();
+});
+
+// ─── チームドロップダウン ────────────────────────────────────────────────
+function buildTeamSelect(sel) {
+  sel.innerHTML = '<option value="" disabled>チームを選択...</option>';
+  const groups = [...new Set(TEAMS.map(t => t.g))];
+  groups.forEach(g => {
+    const og = document.createElement('optgroup');
+    og.label = 'グループ ' + g;
+    TEAMS.filter(t => t.g === g).forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.name;
+      o.textContent = t.flag + '  ' + t.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function onFormChange() {
+  const val = document.getElementById('f-round').value;
+  const teamField = document.getElementById('f-team').closest('.field');
+  const disp = document.getElementById('f-amount-disp');
+  if (val === 'retire') {
+    disp.textContent = '🚪 棄権';
+    disp.style.cssText = 'color:var(--red);border-color:var(--red);background:var(--red-dim);';
+    teamField.style.opacity = '0.3';
+    teamField.style.pointerEvents = 'none';
+  } else {
+    const r = parseInt(val);
+    disp.textContent = r ? '¥' + fmt(BET_AMT[r]) : '— 円';
+    disp.style.cssText = 'color:var(--gold);border-color:var(--gold);background:var(--gold-dim);';
+    teamField.style.opacity = '';
+    teamField.style.pointerEvents = '';
+  }
+}
+
+// ─── ベット追加（Firebaseに書き込み） ────────────────────────────────────
+function addEntry() {
+  const name = document.getElementById('f-name').value;
+  const roundVal = document.getElementById('f-round').value;
+  const teamName = document.getElementById('f-team').value;
+  if (!name) { showToast('名前を選択してください'); return; }
+  if (!roundVal) { showToast('回数を選択してください'); return; }
+
+  // 棄権処理
+  if (roundVal === 'retire') {
+    const personEntries = entries.filter(e => e.name === name);
+    if (!personEntries.length) { showToast(`${name} のエントリーがありません`); return; }
+    if (personEntries.some(e => e.retired)) { showToast(`${name} はすでに棄権済みです`); return; }
+    const amt = personEntries.reduce((s,e) => s + e.amount, 0);
+    retireTarget = name;
+    pendingRetireKeys = personEntries.map(e => e._key);
+    document.getElementById('retire-info').innerHTML =
+      `<strong>${name}</strong> さんが棄権します。<br>累計掛け金 ¥${fmt(amt)} はプールに残ります。`;
+    openModal('retire-modal');
+    return;
+  }
+
+  // 通常ベット
+  const round = parseInt(roundVal);
+  if (!teamName) { showToast('チームを選択してください'); return; }
+  const personEntries = entries.filter(e => e.name === name);
+  if (personEntries.some(e => e.retired)) { showToast(`${name} は棄権済みです`); return; }
+
+  const team = TEAMS.find(t => t.name === teamName);
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot syncing';
+
+  entriesRef.push({
+    name, round,
+    amount: BET_AMT[round],
+    team: team.name,
+    flag: team.flag,
+    retired: false,
+    createdAt: Date.now(),
+  }).then(() => {
+    showToast(`${name} ${round}回目 ¥${fmt(BET_AMT[round])} を追加しました`);
+    resetForm();
+  }).catch(err => {
+    showToast('エラー: ' + err.message);
+    dot.className = 'sync-dot online';
+  });
+}
+
+function confirmRetire() {
+  const updates = {};
+  pendingRetireKeys.forEach(k => { updates[k + '/retired'] = true; });
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot syncing';
+  entriesRef.update(updates).then(() => {
+    showToast(`${retireTarget} さんが棄権しました`);
+    closeModal('retire-modal');
+  }).catch(err => {
+    showToast('エラー: ' + err.message);
+    dot.className = 'sync-dot online';
+  });
+}
+
+function deleteEntry(key) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot syncing';
+  entriesRef.child(key).remove().catch(err => {
+    showToast('エラー: ' + err.message);
+    dot.className = 'sync-dot online';
+  });
+}
+
+function resetForm() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-round').value = '';
+  document.getElementById('f-team').value = '';
+  const disp = document.getElementById('f-amount-disp');
+  disp.textContent = '— 円';
+  disp.style.cssText = '';
+  document.getElementById('f-team').closest('.field').style.opacity = '';
+  document.getElementById('f-team').closest('.field').style.pointerEvents = '';
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────
+function render() {
+  renderPool();
+  renderStats();
+  renderPlayerGrid();
+  renderMainTable();
+  renderTeams();
+}
+
+function renderPool() {
+  const total = entries.reduce((s,e) => s + e.amount, 0);
+  const people = new Set(entries.map(e => e.name));
+  const retiredPeople = new Set(entries.filter(e => e.retired).map(e => e.name));
+  document.getElementById('total-pool').textContent = fmt(total);
+  document.getElementById('header-pool').textContent = '¥' + fmt(total);
+  document.getElementById('active-count').textContent = people.size - retiredPeople.size;
+  document.getElementById('retired-count').textContent = retiredPeople.size;
+  document.getElementById('entry-count').textContent = entries.length;
+}
+
+function renderStats() {
+  const people = new Set(entries.map(e => e.name));
+  document.getElementById('s-players').textContent = people.size;
+  document.getElementById('s-entries').textContent = entries.length;
+}
+
+function renderPlayerGrid() {
+  const grid = document.getElementById('player-grid');
+  if (!entries.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">まだエントリーがありません</div>'; return; }
+  const map = {};
+  NAMES.forEach(n => { if (entries.find(e => e.name === n)) map[n] = []; });
+  entries.forEach(e => { if (map[e.name]) map[e.name].push(e); });
+  grid.innerHTML = Object.entries(map).map(([name, ents]) => {
+    const total = ents.reduce((s,e) => s + e.amount, 0);
+    const retired = ents.some(e => e.retired);
+    const maxRound = Math.max(...ents.map(e => e.round));
+    const latestTeam = [...ents].sort((a,b) => b.round - a.round)[0];
+    const timelineRows = Array.from({length:6}, (_,i) => {
+      const r = i + 1;
+      const entry = ents.find(e => e.round === r);
+      if (entry) return `<div class="entry-row"><div class="entry-dot active">${r}</div><span class="entry-row-team">${entry.flag} ${entry.team}</span><span class="entry-row-amt">¥${fmt(entry.amount)}</span></div>`;
+      return `<div class="entry-row" style="opacity:0.25;"><div class="entry-dot">${r}</div><span class="entry-row-team">—</span><span class="entry-row-amt">—</span></div>`;
+    }).join('');
+    return `<div class="pcard ${retired?'retired':''}">
+      <div class="pcard-left">
+        <div class="pcard-name">${name}${retired?'<span class="rtag">棄権</span>':''}</div>
+        <div class="pcard-amt">¥${fmt(total)}</div>
+        <div class="pcard-round-label">現在 <b>${retired?'棄権済み':maxRound+'回目'}</b></div>
+        <div class="entry-timeline">${timelineRows}</div>
+      </div>
+      <div class="pcard-right">
+        <div class="pcard-flag-big">${latestTeam.flag}</div>
+        <div class="pcard-team-name">${latestTeam.team}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMainTable() {
+  const tbody = document.getElementById('main-tbody');
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">まだベット記録がありません</td></tr>'; return; }
+  const sorted = [...entries].sort((a,b) => {
+    const ni = NAMES.indexOf(a.name) - NAMES.indexOf(b.name);
+    return ni !== 0 ? ni : a.round - b.round;
+  });
+  tbody.innerHTML = sorted.map((e,i) => `
+    <tr class="${e.retired?'retired-row':''}">
+      <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
+      <td style="font-weight:700;">${e.name}</td>
+      <td><span class="round-badge">${e.round}回目</span></td>
+      <td class="amt-cell">¥${fmt(e.amount)}</td>
+      <td><span style="font-size:16px;">${e.flag}</span> ${e.team}</td>
+      <td style="font-size:12px;color:${e.retired?'var(--red)':'var(--green)'};">${e.retired?'棄権済':'参加中'}</td>
+      <td><button class="del-btn" onclick="deleteEntry('${e._key}')" title="削除">✕</button></td>
+    </tr>`).join('');
+}
+
+function renderTeams() {
+  const grid = document.getElementById('teams-grid');
+  const map = {};
+  entries.forEach(e => {
+    if (!map[e.team]) map[e.team] = { flag:e.flag, total:0, bettors:[] };
+    map[e.team].total += e.amount;
+    const b = map[e.team].bettors.find(b => b.name === e.name);
+    if (!b) {
+      map[e.team].bettors.push({ name:e.name, amt:e.amount });
+    } else {
+      b.amt += e.amount;
+    }
+  });
+  const sorted = Object.entries(map).sort((a,b) => b[1].total - a[1].total);
+  if (!sorted.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">まだデータがありません</div>'; return; }
+  grid.innerHTML = sorted.map(([team,d]) => `
+    <div class="team-card">
+      <div class="team-name"><span class="team-flag">${d.flag}</span>${team}</div>
+      <div class="team-total">¥${fmt(d.total)} <span class="unit">円</span></div>
+      <div class="team-bettors">${d.bettors.map(b=>`<div class="btag">${b.name} <b>¥${fmt(b.amt)}</b></div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────
+function fmt(n) { return n.toLocaleString('ja-JP'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2800);
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ─── グループリーグ描画 ────────────────────────────────────────────────────
+function buildGroupGrid() {
+  const grid = document.getElementById('group-grid');
+  const groups = [...new Set(TEAMS.map(t => t.g))].sort();
+  grid.innerHTML = groups.map(g => {
+    const teams = TEAMS.filter(t => t.g === g);
+    const rows = teams.map(t => `
+      <tr>
+        <td><div class="team-cell"><span class="team-flag-sm">${t.flag}</span>${t.name}</div></td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+      </tr>`).join('');
+    return `<div class="group-block">
+      <div class="group-header">グループ ${g}</div>
+      <table class="group-table">
+        <thead><tr><th>チーム</th><th class="num">勝</th><th class="num">分</th><th class="num">負</th><th class="num">pt</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+buildTeamSelect(document.getElementById('f-team'));
+buildGroupGrid();
+</script>
+</body>
+</html>
