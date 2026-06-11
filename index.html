@@ -83,29 +83,50 @@
   .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; text-align:center; }
 
   /* TOURNAMENT MODAL */
-  .tourney-modal { max-width:780px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
-  .tourney-header { padding:18px 20px 0; flex-shrink:0; }
-  .tourney-header h2 { margin-bottom:14px; }
-  .round-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:none; }
-  .round-tabs::-webkit-scrollbar { display:none; }
-  .round-tab { flex-shrink:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:7px 16px; font-size:12px; font-weight:700; color:var(--text-dim); cursor:pointer; transition:all .15s; white-space:nowrap; }
-  .round-tab.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
+  .tourney-modal { max-width:960px; max-height:92vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  .tourney-header { padding:18px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .tourney-header h2 { margin-bottom:12px; }
+  .t-tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
+  .t-tabs::-webkit-scrollbar { display:none; }
+  .t-tab { flex-shrink:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:7px 18px; font-size:12px; font-weight:700; color:var(--text-dim); cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .t-tab.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
   .tourney-body { flex:1; overflow:hidden; position:relative; }
-  .round-panels { display:flex; height:100%; transition:transform .3s cubic-bezier(.4,0,.2,1); }
-  .round-panel { flex-shrink:0; width:100%; height:100%; overflow-y:auto; padding:16px 20px; -webkit-overflow-scrolling:touch; }
-  .match-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; }
-  .match-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:14px; cursor:pointer; transition:border-color .15s; }
-  .match-card:hover { border-color:var(--gold); }
-  .match-label { font-size:10px; color:var(--text-muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
-  .match-date { font-size:11px; color:var(--text-dim); margin-bottom:10px; }
-  .match-teams { display:flex; align-items:center; gap:10px; }
-  .match-team { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
-  .match-team-flag { font-size:32px; line-height:1; }
-  .match-team-name { font-size:12px; font-weight:700; text-align:center; color:var(--text); }
-  .match-team-name.tbd { color:var(--text-muted); font-weight:400; font-style:italic; }
-  .match-vs { font-size:13px; font-weight:800; color:var(--text-muted); flex-shrink:0; }
-  .match-edit-hint { text-align:center; margin-top:10px; font-size:10px; color:var(--text-muted); }
+  .t-panel { height:100%; -webkit-overflow-scrolling:touch; }
   .tourney-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+
+  /* R32 CARDS */
+  .r32-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; padding:16px 20px; }
+  .r32-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:12px; cursor:pointer; transition:border-color .15s; }
+  .r32-card:hover { border-color:var(--gold); }
+  .r32-label { font-size:10px; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px; }
+  .r32-date { font-size:11px; color:var(--text-dim); margin-bottom:8px; }
+  .r32-teams { display:flex; align-items:center; gap:8px; }
+  .r32-team { flex:1; display:flex; align-items:center; gap:6px; }
+  .r32-flag { font-size:18px; }
+  .r32-name { font-size:12px; font-weight:700; }
+  .r32-name.tbd { color:var(--text-muted); font-style:italic; font-weight:400; }
+  .r32-vs { font-size:11px; font-weight:800; color:var(--text-muted); }
+
+  /* BRACKET */
+  .bracket-outer { overflow-x:auto; overflow-y:auto; height:100%; -webkit-overflow-scrolling:touch; padding:16px 20px 20px; }
+  .bracket { display:flex; align-items:stretch; gap:0; min-width:960px; height:520px; position:relative; }
+  .b-col-wrap { display:flex; flex-direction:column; width:138px; flex-shrink:0; }
+  .b-rlabel { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); text-align:center; padding-bottom:8px; flex-shrink:0; }
+  .b-col { display:flex; flex-direction:column; justify-content:space-around; flex:1; }
+  .b-center { width:156px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+  .b-gap { width:28px; flex-shrink:0; }
+  .bm { background:var(--surface2); border:1px solid var(--border); border-radius:8px; cursor:pointer; transition:border-color .15s; overflow:hidden; }
+  .bm:hover { border-color:var(--gold); }
+  .bm.gold { border-color:var(--gold); background:rgba(232,184,75,0.07); }
+  .bm-date { font-size:9px; color:var(--text-muted); padding:5px 8px 2px; }
+  .bm-team { display:flex; align-items:center; gap:5px; padding:5px 8px; border-bottom:1px solid var(--border); }
+  .bm-team.last { border-bottom:none; }
+  .bm-fl { font-size:15px; flex-shrink:0; line-height:1; }
+  .bm-nm { font-size:11px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+  .bm-nm.tbd { color:var(--text-muted); font-weight:400; font-style:italic; }
+  .bm-3rd { background:var(--surface2); border:1px solid var(--border); border-radius:8px; cursor:pointer; overflow:hidden; width:100%; opacity:.85; }
+  .bm-3rd-lbl { font-size:9px; font-weight:700; color:var(--text-dim); text-align:center; padding:5px 8px 2px; }
+  .bracket-svg { position:absolute; top:0; left:0; pointer-events:none; overflow:visible; }
 
   /* EDIT MATCH MODAL */
   .edit-modal { max-width:360px; }
@@ -376,10 +397,20 @@
   <div class="modal tourney-modal">
     <div class="tourney-header">
       <h2>🏆 トーナメント</h2>
-      <div class="round-tabs" id="round-tabs"></div>
+      <div class="t-tabs">
+        <div class="t-tab active" onclick="switchTourneyTab(0)">ベスト32</div>
+        <div class="t-tab" onclick="switchTourneyTab(1)">決勝トーナメント</div>
+      </div>
     </div>
-    <div class="tourney-body">
-      <div class="round-panels" id="round-panels"></div>
+    <div class="tourney-body" style="overflow:hidden;">
+      <div class="t-panel" id="t-panel-0" style="overflow-y:auto;">
+        <div class="r32-grid" id="r32-grid"></div>
+      </div>
+      <div class="t-panel" id="t-panel-1" style="display:none;">
+        <div class="bracket-outer">
+          <div class="bracket" id="bracket-container"></div>
+        </div>
+      </div>
     </div>
     <div class="tourney-footer">
       <button class="btn btn-ghost" onclick="closeModal('tourney-modal')" style="width:100%;padding:12px;">閉じる</button>
@@ -705,13 +736,26 @@ function renderTeams() {
 
 // ─── Utils ────────────────────────────────────────────────────────────────
 function fmt(n) { return n.toLocaleString('ja-JP'); }
-let tourneyInited = false;
 function openModal(id) {
   if (id === 'group-modal') buildGroupGrid();
   if (id === 'tourney-modal') {
-    if (!tourneyInited) { initTourney(); tourneyInited = true; }
-    else renderTourneyPanels();
-    switchRound(currentRoundIdx);
+    if (!tourneyInited) {
+      buildTeamSelect(document.getElementById('edit-home'));
+      buildTeamSelect(document.getElementById('edit-away'));
+      ['edit-home','edit-away'].forEach(sid => {
+        const sel = document.getElementById(sid);
+        const opt = document.createElement('option');
+        opt.value = ''; opt.textContent = '— 未定 —';
+        sel.insertBefore(opt, sel.firstChild);
+        sel.value = '';
+      });
+      renderR32();
+      renderBracket();
+      tourneyInited = true;
+    } else {
+      renderR32(); renderBracket();
+    }
+    switchTourneyTab(tourneyTabIdx);
   }
   document.getElementById(id).classList.add('open');
 }
@@ -729,134 +773,194 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ─── トーナメントデータ ───────────────────────────────────────────────────
-const TOURNEY_ROUNDS = [
-  { key:'R32', label:'ベスト32' },
-  { key:'R16', label:'ベスト16' },
-  { key:'QF',  label:'ベスト8' },
-  { key:'SF',  label:'ベスト4' },
-  { key:'F',   label:'決勝' },
+const R32_MATCHES = [
+  {id:'M49',label:'試合49',date:'2026-07-04',time:'04:00'},{id:'M50',label:'試合50',date:'2026-07-04',time:'08:00'},
+  {id:'M51',label:'試合51',date:'2026-07-04',time:'11:00'},{id:'M52',label:'試合52',date:'2026-07-04',time:'14:00'},
+  {id:'M53',label:'試合53',date:'2026-07-05',time:'04:00'},{id:'M54',label:'試合54',date:'2026-07-05',time:'08:00'},
+  {id:'M55',label:'試合55',date:'2026-07-05',time:'11:00'},{id:'M56',label:'試合56',date:'2026-07-05',time:'14:00'},
+  {id:'M57',label:'試合57',date:'2026-07-06',time:'04:00'},{id:'M58',label:'試合58',date:'2026-07-06',time:'08:00'},
+  {id:'M59',label:'試合59',date:'2026-07-06',time:'11:00'},{id:'M60',label:'試合60',date:'2026-07-06',time:'14:00'},
+  {id:'M61',label:'試合61',date:'2026-07-07',time:'04:00'},{id:'M62',label:'試合62',date:'2026-07-07',time:'08:00'},
+  {id:'M63',label:'試合63',date:'2026-07-07',time:'11:00'},{id:'M64',label:'試合64',date:'2026-07-07',time:'14:00'},
 ];
-const TOURNEY_MATCHES = [
-  // ベスト32
-  {id:'M49',round:'R32',label:'試合49',date:'2026-07-04',time:'04:00'},{id:'M50',round:'R32',label:'試合50',date:'2026-07-04',time:'08:00'},
-  {id:'M51',round:'R32',label:'試合51',date:'2026-07-04',time:'11:00'},{id:'M52',round:'R32',label:'試合52',date:'2026-07-04',time:'14:00'},
-  {id:'M53',round:'R32',label:'試合53',date:'2026-07-05',time:'04:00'},{id:'M54',round:'R32',label:'試合54',date:'2026-07-05',time:'08:00'},
-  {id:'M55',round:'R32',label:'試合55',date:'2026-07-05',time:'11:00'},{id:'M56',round:'R32',label:'試合56',date:'2026-07-05',time:'14:00'},
-  {id:'M57',round:'R32',label:'試合57',date:'2026-07-06',time:'04:00'},{id:'M58',round:'R32',label:'試合58',date:'2026-07-06',time:'08:00'},
-  {id:'M59',round:'R32',label:'試合59',date:'2026-07-06',time:'11:00'},{id:'M60',round:'R32',label:'試合60',date:'2026-07-06',time:'14:00'},
-  {id:'M61',round:'R32',label:'試合61',date:'2026-07-07',time:'04:00'},{id:'M62',round:'R32',label:'試合62',date:'2026-07-07',time:'08:00'},
-  {id:'M63',round:'R32',label:'試合63',date:'2026-07-07',time:'11:00'},{id:'M64',round:'R32',label:'試合64',date:'2026-07-07',time:'14:00'},
-  // ベスト16
-  {id:'M65',round:'R16',label:'試合65',date:'2026-07-09',time:'04:00'},{id:'M66',round:'R16',label:'試合66',date:'2026-07-09',time:'10:00'},
-  {id:'M67',round:'R16',label:'試合67',date:'2026-07-10',time:'04:00'},{id:'M68',round:'R16',label:'試合68',date:'2026-07-10',time:'10:00'},
-  {id:'M69',round:'R16',label:'試合69',date:'2026-07-11',time:'04:00'},{id:'M70',round:'R16',label:'試合70',date:'2026-07-11',time:'10:00'},
-  {id:'M71',round:'R16',label:'試合71',date:'2026-07-12',time:'04:00'},{id:'M72',round:'R16',label:'試合72',date:'2026-07-12',time:'10:00'},
-  // ベスト8
-  {id:'M73',round:'QF',label:'準々決勝1',date:'2026-07-14',time:'04:00'},{id:'M74',round:'QF',label:'準々決勝2',date:'2026-07-14',time:'10:00'},
-  {id:'M75',round:'QF',label:'準々決勝3',date:'2026-07-15',time:'04:00'},{id:'M76',round:'QF',label:'準々決勝4',date:'2026-07-15',time:'10:00'},
-  // ベスト4
-  {id:'M77',round:'SF',label:'準決勝1',date:'2026-07-18',time:'10:00'},
-  {id:'M78',round:'SF',label:'準決勝2',date:'2026-07-19',time:'10:00'},
-  // 決勝
-  {id:'M3P',round:'F',label:'3位決定戦',date:'2026-07-22',time:'04:00'},
-  {id:'MF', round:'F',label:'🏆 決勝',  date:'2026-07-26',time:'04:00'},
-];
+const BS = {
+  R16L:[
+    {id:'R16L1',label:'試合65',date:'2026-07-09',time:'04:00'},
+    {id:'R16L2',label:'試合66',date:'2026-07-09',time:'10:00'},
+    {id:'R16L3',label:'試合67',date:'2026-07-10',time:'04:00'},
+    {id:'R16L4',label:'試合68',date:'2026-07-10',time:'10:00'},
+  ],
+  QFL:[
+    {id:'QFL1',label:'準々決勝1',date:'2026-07-14',time:'04:00'},
+    {id:'QFL2',label:'準々決勝2',date:'2026-07-14',time:'10:00'},
+  ],
+  SFL:[{id:'SFL1',label:'準決勝1',date:'2026-07-18',time:'10:00'}],
+  F:  [{id:'MF', label:'🏆 決勝',date:'2026-07-26',time:'04:00'}],
+  TP: [{id:'M3P',label:'3位決定戦',date:'2026-07-22',time:'04:00'}],
+  SFR:[{id:'SFR1',label:'準決勝2',date:'2026-07-19',time:'10:00'}],
+  QFR:[
+    {id:'QFR1',label:'準々決勝3',date:'2026-07-15',time:'04:00'},
+    {id:'QFR2',label:'準々決勝4',date:'2026-07-15',time:'10:00'},
+  ],
+  R16R:[
+    {id:'R16R1',label:'試合69',date:'2026-07-11',time:'04:00'},
+    {id:'R16R2',label:'試合70',date:'2026-07-11',time:'10:00'},
+    {id:'R16R3',label:'試合71',date:'2026-07-12',time:'04:00'},
+    {id:'R16R4',label:'試合72',date:'2026-07-12',time:'10:00'},
+  ],
+};
 
-let tourneyData = {}; // Firebase から取得: { matchId: { home:{name,flag}, away:{name,flag} } }
-let currentRoundIdx = 0;
+let tourneyData = {};
 let editingMatchId = null;
+let tourneyInited = false;
+let tourneyTabIdx = 0;
 const tourneyRef = db.ref('tournament');
 
-// Firebase リアルタイム同期
 tourneyRef.on('value', snap => {
   tourneyData = snap.val() || {};
   if (document.getElementById('tourney-modal').classList.contains('open')) {
-    renderTourneyPanels();
+    renderR32(); renderBracket();
   }
 });
 
 function fmtMatchDate(dateStr, timeStr) {
   const days = ['日','月','火','水','木','金','土'];
   const [y,m,d] = dateStr.split('-').map(Number);
-  const [h,min] = timeStr.split(':');
   const dt = new Date(y, m-1, d);
-  return `${m}/${d}（${days[dt.getDay()]}）${h}:${min} JST`;
+  return `${m}/${d}（${days[dt.getDay()]}）${timeStr} JST`;
 }
 
-function initTourney() {
-  // タブ生成
-  const tabs = document.getElementById('round-tabs');
-  tabs.innerHTML = TOURNEY_ROUNDS.map((r,i) => `
-    <div class="round-tab ${i===0?'active':''}" onclick="switchRound(${i})">${r.label}</div>
-  `).join('');
-
-  // パネル生成
-  const panels = document.getElementById('round-panels');
-  panels.innerHTML = TOURNEY_ROUNDS.map(r => `
-    <div class="round-panel">
-      <div class="match-grid" id="panel-${r.key}"></div>
-    </div>
-  `).join('');
-
-  // チームドロップダウン（編集モーダル用）
-  buildTeamSelect(document.getElementById('edit-home'));
-  buildTeamSelect(document.getElementById('edit-away'));
-  // TBD オプション追加
-  ['edit-home','edit-away'].forEach(id => {
-    const sel = document.getElementById(id);
-    const opt = document.createElement('option');
-    opt.value = ''; opt.textContent = '— 未定 —';
-    sel.insertBefore(opt, sel.firstChild);
-    sel.value = '';
-  });
-
-  renderTourneyPanels();
+function bmHTML(m, extraCls='') {
+  const data = tourneyData[m.id] || {};
+  const h = data.home, a = data.away;
+  return `<div class="bm ${extraCls}" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
+    <div class="bm-date">📅 ${fmtMatchDate(m.date,m.time)}</div>
+    <div class="bm-team"><span class="bm-fl">${h?h.flag:'🏳️'}</span><span class="bm-nm ${h?'':'tbd'}">${h?h.name:'TBD'}</span></div>
+    <div class="bm-team last"><span class="bm-fl">${a?a.flag:'🏳️'}</span><span class="bm-nm ${a?'':'tbd'}">${a?a.name:'TBD'}</span></div>
+  </div>`;
 }
 
-function renderTourneyPanels() {
-  TOURNEY_ROUNDS.forEach(r => {
-    const panel = document.getElementById('panel-' + r.key);
-    if (!panel) return;
-    const matches = TOURNEY_MATCHES.filter(m => m.round === r.key);
-    panel.innerHTML = matches.map(m => {
-      const data = tourneyData[m.id] || {};
-      const home = data.home;
-      const away = data.away;
-      return `<div class="match-card" onclick="openEditMatch('${m.id}')">
-        <div class="match-label">${m.label}</div>
-        <div class="match-date">📅 ${fmtMatchDate(m.date, m.time)}</div>
-        <div class="match-teams">
-          <div class="match-team">
-            <div class="match-team-flag">${home ? home.flag : '🏳️'}</div>
-            <div class="match-team-name ${home?'':'tbd'}">${home ? home.name : 'TBD'}</div>
-          </div>
-          <div class="match-vs">VS</div>
-          <div class="match-team">
-            <div class="match-team-flag">${away ? away.flag : '🏳️'}</div>
-            <div class="match-team-name ${away?'':'tbd'}">${away ? away.name : 'TBD'}</div>
-          </div>
-        </div>
-        <div class="match-edit-hint">✏️ タップして編集</div>
-      </div>`;
-    }).join('');
-  });
+function colHTML(matches, label) {
+  return `<div class="b-col-wrap">
+    <div class="b-rlabel">${label}</div>
+    <div class="b-col">${matches.map(m => bmHTML(m)).join('')}</div>
+  </div>`;
 }
 
-function switchRound(idx) {
-  currentRoundIdx = idx;
-  // タブ更新
-  document.querySelectorAll('.round-tab').forEach((t,i) => {
-    t.classList.toggle('active', i === idx);
-  });
-  // パネルスライド
-  document.getElementById('round-panels').style.transform = `translateX(-${idx * 100}%)`;
+function renderBracket() {
+  const c = document.getElementById('bracket-container');
+  if (!c) return;
+  const tp = BS.TP[0];
+  c.innerHTML =
+    colHTML(BS.R16L,'ベスト16') +
+    '<div class="b-gap"></div>' +
+    colHTML(BS.QFL,'ベスト8') +
+    '<div class="b-gap"></div>' +
+    colHTML(BS.SFL,'ベスト4') +
+    '<div class="b-gap"></div>' +
+    `<div class="b-col-wrap"><div class="b-rlabel">決勝</div><div class="b-center">
+      ${bmHTML(BS.F[0],'gold')}
+      <div class="bm-3rd" id="bm-${tp.id}" onclick="openEditMatch('${tp.id}','${tp.label}')">
+        <div class="bm-3rd-lbl">🥉 3位決定戦</div>
+        <div class="bm-date" style="padding:3px 8px 5px;text-align:center;">📅 ${fmtMatchDate(tp.date,tp.time)}</div>
+      </div>
+    </div></div>` +
+    '<div class="b-gap"></div>' +
+    colHTML(BS.SFR,'ベスト4') +
+    '<div class="b-gap"></div>' +
+    colHTML(BS.QFR,'ベスト8') +
+    '<div class="b-gap"></div>' +
+    colHTML(BS.R16R,'ベスト16') +
+    '<svg class="bracket-svg" id="bracket-svg"></svg>';
+
+  requestAnimationFrame(drawBracketLines);
 }
 
-function openEditMatch(matchId) {
+function drawBracketLines() {
+  const svg = document.getElementById('bracket-svg');
+  const wrap = document.getElementById('bracket-container');
+  if (!svg || !wrap) return;
+  const wRect = wrap.getBoundingClientRect();
+  const W = wrap.scrollWidth, H = wrap.clientHeight;
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const gc = id => {
+    const el = document.getElementById('bm-' + id);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { l: r.left - wRect.left, r: r.right - wRect.left, cy: r.top + r.height/2 - wRect.top };
+  };
+
+  const lc = 'rgba(232,184,75,0.45)', lw = 1.5;
+  let p = '';
+
+  const drawPair = (idA, idB, idT, fromRight) => {
+    const a = gc(idA), b = gc(idB), t = gc(idT);
+    if (!a||!b||!t) return;
+    const x1 = fromRight ? a.r : a.l;
+    const x2 = fromRight ? b.r : b.l;
+    const xt = fromRight ? t.l : t.r;
+    const mx = (x1 + xt) / 2;
+    const tcy = (a.cy + b.cy) / 2;
+    p += `<polyline points="${x1},${a.cy} ${mx},${a.cy} ${mx},${b.cy} ${x2},${b.cy}" stroke="${lc}" stroke-width="${lw}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    p += `<line x1="${mx}" y1="${tcy}" x2="${xt}" y2="${tcy}" stroke="${lc}" stroke-width="${lw}" stroke-linecap="round"/>`;
+  };
+
+  const drawSingle = (idA, idT, fromRight) => {
+    const a = gc(idA), t = gc(idT);
+    if (!a||!t) return;
+    const x1 = fromRight ? a.r : a.l;
+    const x2 = fromRight ? t.l : t.r;
+    p += `<polyline points="${x1},${a.cy} ${x2},${a.cy} ${x2},${t.cy}" stroke="${lc}" stroke-width="${lw}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (Math.abs(a.cy - t.cy) > 2) {
+      p += `<line x1="${x2}" y1="${t.cy}" x2="${fromRight ? t.r : t.l}" y2="${t.cy}" stroke="${lc}" stroke-width="${lw}" stroke-linecap="round"/>`;
+    }
+  };
+
+  // 左側
+  drawPair('R16L1','R16L2','QFL1',true);
+  drawPair('R16L3','R16L4','QFL2',true);
+  drawPair('QFL1','QFL2','SFL1',true);
+  drawSingle('SFL1','MF',true);
+  // 右側
+  drawPair('R16R1','R16R2','QFR1',false);
+  drawPair('R16R3','R16R4','QFR2',false);
+  drawPair('QFR1','QFR2','SFR1',false);
+  drawSingle('SFR1','MF',false);
+
+  svg.innerHTML = p;
+}
+
+function renderR32() {
+  const grid = document.getElementById('r32-grid');
+  if (!grid) return;
+  grid.innerHTML = R32_MATCHES.map(m => {
+    const data = tourneyData[m.id] || {};
+    const h = data.home, a = data.away;
+    return `<div class="r32-card" onclick="openEditMatch('${m.id}','${m.label}')">
+      <div class="r32-label">${m.label}</div>
+      <div class="r32-date">📅 ${fmtMatchDate(m.date,m.time)}</div>
+      <div class="r32-teams">
+        <div class="r32-team"><span class="r32-flag">${h?h.flag:'🏳️'}</span><span class="r32-name ${h?'':'tbd'}">${h?h.name:'TBD'}</span></div>
+        <div class="r32-vs">vs</div>
+        <div class="r32-team" style="justify-content:flex-end;"><span class="r32-name ${a?'':'tbd'}" style="text-align:right;">${a?a.name:'TBD'}</span><span class="r32-flag">${a?a.flag:'🏳️'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchTourneyTab(idx) {
+  tourneyTabIdx = idx;
+  document.querySelectorAll('.t-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.t-panel').forEach((p,i) => p.style.display = i===idx ? '' : 'none');
+  if (idx === 1) requestAnimationFrame(drawBracketLines);
+}
+
+function openEditMatch(matchId, label) {
   editingMatchId = matchId;
-  const m = TOURNEY_MATCHES.find(x => x.id === matchId);
   const data = tourneyData[matchId] || {};
-  document.getElementById('edit-match-title').textContent = `✏️ ${m.label} を編集`;
+  document.getElementById('edit-match-title').textContent = `✏️ ${label}`;
   document.getElementById('edit-home').value = data.home ? data.home.name : '';
   document.getElementById('edit-away').value = data.away ? data.away.name : '';
   openModal('edit-match-modal');
@@ -868,10 +972,10 @@ function saveMatch() {
   const homeTeam = homeName ? TEAMS.find(t => t.name === homeName) : null;
   const awayTeam = awayName ? TEAMS.find(t => t.name === awayName) : null;
   tourneyRef.child(editingMatchId).set({
-    home: homeTeam ? { name: homeTeam.name, flag: homeTeam.flag } : null,
-    away: awayTeam ? { name: awayTeam.name, flag: awayTeam.flag } : null,
+    home: homeTeam ? {name:homeTeam.name,flag:homeTeam.flag} : null,
+    away: awayTeam ? {name:awayTeam.name,flag:awayTeam.flag} : null,
   }).then(() => {
-    showToast('保存しました');
+    showToast('保存しました ✓');
     closeModal('edit-match-modal');
   }).catch(err => showToast('エラー: ' + err.message));
 }
