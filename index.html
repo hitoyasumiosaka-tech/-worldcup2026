@@ -1448,6 +1448,12 @@ function submitScorerPick() {
   const player = document.getElementById('sc-player').value.trim();
   if (!name)   { showToast('名前を選択してください'); return; }
   if (!player) { showToast('選手名を入力してください'); return; }
+  const existing = scorerPicks[name];
+  if (existing && existing.player) {
+    const ok = confirm(`${name} はすでに「${existing.player}」を予想中です。
+「${player}」に上書きしますか？`);
+    if (!ok) return;
+  }
   scorerPicksRef.child(name).set({ player, updatedAt: Date.now() }).then(() => {
     showToast(`${name} の予想「${player}」を登録しました ✅`);
     document.getElementById('sc-player').value = '';
