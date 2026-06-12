@@ -1,4 +1,3 @@
 [build]
-  base = "worldcup2026"
-  publish = "worldcup2026"
-  functions = "netlify/functions"
+  publish = "."
+  functions = "worldcup2026/netlify/functions"
