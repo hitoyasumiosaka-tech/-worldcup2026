@@ -1305,19 +1305,38 @@ function renderGroupGrid(standingsMap) {
   }).join('');
 }
 
+// football-data.org の英語チーム名 → 日本語名マッピング
+const TEAM_NAME_MAP = {
+  'Mexico':'メキシコ','South Africa':'南アフリカ','South Korea':'韓国','Korea Republic':'韓国',
+  'Czechia':'チェコ','Canada':'カナダ','Bosnia-Herzegovina':'ボスニア・ヘルツェゴビナ',
+  'Qatar':'カタール','Switzerland':'スイス','Brazil':'ブラジル','Morocco':'モロッコ',
+  'Haiti':'ハイチ','Scotland':'スコットランド','United States':'アメリカ','USA':'アメリカ',
+  'Paraguay':'パラグアイ','Australia':'オーストラリア','Turkey':'トルコ',
+  'Germany':'ドイツ','Curaçao':'キュラソー','Ivory Coast':'コートジボワール',
+  'Ecuador':'エクアドル','Netherlands':'オランダ','Japan':'日本','Sweden':'スウェーデン',
+  'Tunisia':'チュニジア','Belgium':'ベルギー','Egypt':'エジプト','Iran':'イラン',
+  'New Zealand':'ニュージーランド','Spain':'スペイン','Cape Verde Islands':'カーボベルデ',
+  'Saudi Arabia':'サウジアラビア','Uruguay':'ウルグアイ','France':'フランス',
+  'Senegal':'セネガル','Iraq':'イラク','Norway':'ノルウェー','Argentina':'アルゼンチン',
+  'Algeria':'アルジェリア','Austria':'オーストリア','Jordan':'ヨルダン',
+  'Portugal':'ポルトガル','Congo DR':'コンゴ民主共和国','Uzbekistan':'ウズベキスタン',
+  'Colombia':'コロンビア','England':'イングランド','Croatia':'クロアチア',
+  'Ghana':'ガーナ','Panama':'パナマ',
+};
+
 async function buildGroupGrid() {
   const grid = document.getElementById('group-grid');
   grid.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-dim);">読み込み中...</div>';
   try {
-    const res = await fetch(`/.netlify/functions/football?type=standings&season=${WC_SEASON}`);
+    const res = await fetch(`/.netlify/functions/football?type=standings`);
     const data = await res.json();
-    // football-data.org のレスポンスをチーム名→成績のマップに変換
     const standingsMap = {};
     const allStandings = data?.standings || [];
     allStandings.forEach(group => {
       (group.table || []).forEach(row => {
-        const name = row.team?.name || '';
-        standingsMap[name] = {
+        const engName = row.team?.name || '';
+        const jpName = TEAM_NAME_MAP[engName] || engName;
+        standingsMap[jpName] = {
           won:  row.won,
           draw: row.draw,
           lost: row.lost,
@@ -1327,7 +1346,6 @@ async function buildGroupGrid() {
     });
     renderGroupGrid(standingsMap);
   } catch (e) {
-    // APIエラー時は「—」表示にフォールバック
     renderGroupGrid({});
   }
 }
