@@ -1346,11 +1346,12 @@ async function apiFetch(path) {
 
 async function resolveWcLeagueId() {
   if (wcLeagueIdResolved) return wcLeagueIdResolved;
-  const json = await apiFetch(`/leagues?season=${WC_SEASON}`);
+  // シーズン指定なしで World Cup を名前検索
+  const json = await apiFetch(`/leagues?name=World+Cup`);
   const list = json.response || [];
-  const wc = list.find(l => /world.?cup/i.test(l.league.name))
-          || list.find(l => /fifa/i.test(l.league.name))
-          || list.find(l => /wc/i.test(l.league.name));
+  // 2026シーズンがあるものを優先、なければ最新
+  const wc = list.find(l => l.seasons?.some(s => s.year === 2026))
+          || list.find(l => /world.?cup/i.test(l.league.name));
   wcLeagueIdResolved = wc?.league?.id || WC_LEAGUE_ID;
   console.log('WC leagues found:', list.map(l => `${l.league.id}:${l.league.name}`));
   console.log('Using league ID:', wcLeagueIdResolved);
