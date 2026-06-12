@@ -265,7 +265,7 @@
 <body>
 
 <header>
-  <div class="logo">FIFA W杯 <span>2026</span></div>
+  <div class="logo">FIFA W杯 <span style="color:var(--gold);">2026</span></div>
   <div class="header-right">
     <div class="sync-dot" id="sync-dot" title="接続状態"></div>
     <div class="pool-badge" id="header-pool">¥0</div>
@@ -324,11 +324,7 @@
           <option value="" disabled selected>選択...</option>
           <option>慧介</option><option>健人</option><option>八尋</option><option>竣平</option>
           <option>拓海</option><option>宏樹</option><option>海斗</option><option>健太</option>
-          <option>いーくん</option><option>りるちゃん</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>回数（ラウンド）</label>
+          <option>いーくん</option><option>りるちゃん</option><option>擁くん</option>
         <select id="f-round" onchange="onFormChange()">
           <option value="" disabled selected>選択...</option>
           <option value="1">1回目　¥10,000</option>
@@ -367,11 +363,7 @@
           <option value="" disabled selected>選択...</option>
           <option>慧介</option><option>健人</option><option>八尋</option><option>竣平</option>
           <option>拓海</option><option>宏樹</option><option>海斗</option><option>健太</option>
-          <option>いーくん</option><option>りるちゃん</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>エントリー</label>
+          <option>いーくん</option><option>りるちゃん</option><option>擁くん</option>
         <select id="d-entry">
           <option value="" disabled selected>名前を先に選択</option>
         </select>
@@ -554,7 +546,7 @@ const TEAMS = [
   {name:'イングランド',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',g:'L'},{name:'クロアチア',flag:'🇭🇷',g:'L'},{name:'ガーナ',flag:'🇬🇭',g:'L'},{name:'パナマ',flag:'🇵🇦',g:'L'},
 ];
 
-const NAMES = ['慧介','健人','八尋','竣平','拓海','宏樹','海斗','健太','いーくん','りるちゃん'];
+const NAMES = ['慧介','健人','八尋','竣平','拓海','宏樹','海斗','健太','いーくん','りるちゃん','擁くん'];
 const BET_AMT = [0, 10000, 20000, 30000, 40000, 50000, 60000];
 
 // ─── ローカルキャッシュ ────────────────────────────────────────────────────
