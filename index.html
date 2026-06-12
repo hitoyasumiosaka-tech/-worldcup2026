@@ -354,7 +354,7 @@
   <!-- ACTION BUTTONS -->
   <div class="action-btns" style="grid-template-columns:1fr;">
     <button class="action-btn" onclick="openModal('scorer-modal')">
-      <span class="ab-icon">👑</span>俺の得点王
+      <span class="ab-icon">👑</span>俺たちの得点王
     </button>
     <button class="action-btn" onclick="openModal('rule-modal')">
       <span class="ab-icon">📋</span>ルールを見る
@@ -488,9 +488,15 @@
 <div class="modal-overlay scorer-modal-overlay" id="scorer-modal">
   <div class="modal scorer-modal">
     <div class="scorer-modal-header">
-      <h2>👑 俺の得点王</h2>
+      <h2>👑 俺たちの得点王</h2>
     </div>
     <div class="scorer-modal-body">
+
+      <!-- TOP IMAGE -->
+      <div style="margin-bottom:20px;">
+        <img src="topscorer_rule.jpg.jpg" alt="得点王ルール" style="width:100%;border-radius:8px;display:block;"
+          onerror="this.style.display='none'">
+      </div>
 
       <!-- API KEY NOTICE (hidden when key is set) -->
       <div class="api-notice" id="sc-api-notice" style="display:none;">
@@ -513,7 +519,39 @@
           </div>
           <div class="field">
             <label>得点王予想選手</label>
-            <input id="sc-player" type="text" class="scorer-input" placeholder="例: エムバペ" autocomplete="off">
+            <select id="sc-player" class="scorer-input" style="padding-right:32px;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%237070a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 11px center;appearance:none;-webkit-appearance:none;">
+              <option value="" disabled selected>選手を選択...</option>
+              <option value="キリアン・エムバペ">🇫🇷 キリアン・エムバペ（フランス）</option>
+              <option value="ハリー・ケイン">🏴󠁧󠁢󠁥󠁮󠁧󠁿 ハリー・ケイン（イングランド）</option>
+              <option value="ラミン・ヤマル">🇪🇸 ラミン・ヤマル（スペイン）</option>
+              <option value="アーリング・ハーランド">🇳🇴 アーリング・ハーランド（ノルウェー）</option>
+              <option value="フリアン・アルバレス">🇦🇷 フリアン・アルバレス（アルゼンチン）</option>
+              <option value="ヴィニシウス・ジュニオール">🇧🇷 ヴィニシウス・ジュニオール（ブラジル）</option>
+              <option value="リオネル・メッシ">🇦🇷 リオネル・メッシ（アルゼンチン）</option>
+              <option value="ラフィーニャ">🇧🇷 ラフィーニャ（ブラジル）</option>
+              <option value="クリスティアーノ・ロナウド">🇵🇹 クリスティアーノ・ロナウド（ポルトガル）</option>
+              <option value="ウスマン・デンベレ">🇫🇷 ウスマン・デンベレ（フランス）</option>
+              <option value="ラウタロ・マルティネス">🇦🇷 ラウタロ・マルティネス（アルゼンチン）</option>
+              <option value="ブカヨ・サカ">🏴󠁧󠁢󠁥󠁮󠁧󠁿 ブカヨ・サカ（イングランド）</option>
+              <option value="ブルーノ・フェルナンデス">🇵🇹 ブルーノ・フェルナンデス（ポルトガル）</option>
+              <option value="ミケル・オヤルサバル">🇪🇸 ミケル・オヤルサバル（スペイン）</option>
+              <option value="ルイス・ディアス">🇨🇴 ルイス・ディアス（コロンビア）</option>
+              <option value="マイケル・オリーズ">🇫🇷 マイケル・オリーズ（フランス）</option>
+              <option value="コーディ・ガクポ">🇳🇱 コーディ・ガクポ（オランダ）</option>
+              <option value="カイ・ハフェルツ">🇩🇪 カイ・ハフェルツ（ドイツ）</option>
+              <option value="ラヤン・シェルキ">🇫🇷 ラヤン・シェルキ（フランス）</option>
+              <option value="ヴィクトル・ギョケレシュ">🇸🇪 ヴィクトル・ギョケレシュ（スウェーデン）</option>
+              <option value="ソン・フンミン">🇰🇷 ソン・フンミン（韓国）</option>
+              <option value="ジョアン・ペドロ">🇧🇷 ジョアン・ペドロ（ブラジル）</option>
+              <option value="クリスチャン・プリシッチ">🇺🇸 クリスチャン・プリシッチ（アメリカ）</option>
+              <option value="アルダ・ギュレル">🇹🇷 アルダ・ギュレル（トルコ）</option>
+              <option value="ドニエル・マレン">🇳🇱 ドニエル・マレン（オランダ）</option>
+              <option value="ブラヒム・ディアス">🇲🇦 ブラヒム・ディアス（モロッコ）</option>
+              <option value="アントワーヌ・セメンヨ">🇬🇭 アントワーヌ・セメンヨ（ガーナ）</option>
+              <option value="ブリール・エンボロ">🇨🇭 ブリール・エンボロ（スイス）</option>
+              <option value="モハメド・サラー">🇪🇬 モハメド・サラー（エジプト）</option>
+              <option value="アンテ・ブディミル">🇭🇷 アンテ・ブディミル（クロアチア）</option>
+            </select>
           </div>
           <button class="btn btn-add" style="padding:11px 18px;" onclick="submitScorerPick()">登録</button>
         </div>
