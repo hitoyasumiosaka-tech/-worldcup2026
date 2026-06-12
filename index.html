@@ -100,6 +100,7 @@
   .api-notice b { color:var(--gold); }
 
   /* GROUP LEAGUE MODAL */
+  .group-modal-overlay { padding:0 !important; align-items:stretch !important; justify-content:stretch !important; }
   .group-modal { width:100vw; max-width:100vw; height:100vh; height:100dvh; border-radius:0 !important; display:flex; flex-direction:column; padding:0; overflow:hidden; border:none !important; }
   .group-modal-header { padding:16px 16px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
   .group-modal-body { flex:1; overflow-y:auto; padding:10px 8px; -webkit-overflow-scrolling:touch; }
@@ -556,7 +557,7 @@
 </div>
 
 <!-- GROUP MODAL -->
-<div class="modal-overlay" id="group-modal">
+<div class="modal-overlay group-modal-overlay" id="group-modal">
   <div class="modal group-modal">
     <div class="group-modal-header">
       <h2>⚽ グループリーグ</h2>
