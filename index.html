@@ -700,10 +700,19 @@ function deleteEntry(key) {
 function onDeleteNameChange() {
   const name = document.getElementById('d-name').value;
   const sel = document.getElementById('d-entry');
-  const active = entries.filter(e => e.name === name && !e.deletedAt);
-  sel.innerHTML = active.length
-    ? active.map(e => `<option value="${e._key}">${e.round}回目 — ${e.flag}${e.team} ¥${fmt(e.amount)}</option>`).join('')
-    : '<option value="" disabled>エントリーなし</option>';
+  const visible = entries.filter(e => e.name === name && !e.deletedAt);
+  if (!visible.length) {
+    sel.innerHTML = '<option value="" disabled>エントリーなし</option>';
+    return;
+  }
+  const isRetired = visible.some(e => e.retired);
+  let opts = visible.map(e =>
+    `<option value="${e._key}">${e.round}回目 — ${e.flag}${e.team} ¥${fmt(e.amount)}${e.retired ? ' 【棄権済】' : ''}</option>`
+  ).join('');
+  if (isRetired) {
+    opts = `<option value="__unretire__">🔄 棄権を取り消す</option>` + opts;
+  }
+  sel.innerHTML = opts;
 }
 
 function deleteSelectedEntry() {
@@ -711,6 +720,23 @@ function deleteSelectedEntry() {
   const key = document.getElementById('d-entry').value;
   if (!name) { showToast('名前を選択してください'); return; }
   if (!key) { showToast('エントリーを選択してください'); return; }
+
+  if (key === '__unretire__') {
+    const retiredKeys = entries.filter(e => e.name === name && e.retired && !e.deletedAt).map(e => e._key);
+    if (!retiredKeys.length) { showToast('棄権エントリーが見つかりません'); return; }
+    const dot = document.getElementById('sync-dot');
+    dot.className = 'sync-dot syncing';
+    Promise.all(retiredKeys.map(k => entriesRef.child(k).update({ retired: false }))).then(() => {
+      showToast(`${name} さんの棄権を取り消しました ✅`);
+      document.getElementById('d-name').value = '';
+      document.getElementById('d-entry').innerHTML = '<option value="" disabled selected>名前を先に選択</option>';
+    }).catch(err => {
+      showToast('エラー: ' + err.message);
+      dot.className = 'sync-dot online';
+    });
+    return;
+  }
+
   const e = entries.find(e => e._key === key);
   if (!e) { showToast('エントリーが見つかりません'); return; }
   deleteEntry(key);
