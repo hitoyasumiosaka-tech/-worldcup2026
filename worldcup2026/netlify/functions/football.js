@@ -1,8 +1,5 @@
-const WC_LEAGUE = 1;      // API-Football の W杯 league ID
-const WC_SEASON = 2026;
-
 exports.handler = async (event) => {
-  const key = process.env.API_FOOTBALL_KEY;
+  const key = process.env.FOOTBALL_DATA_KEY;
   if (!key) {
     return { statusCode: 500, body: JSON.stringify({ message: 'API key not set' }) };
   }
@@ -10,9 +7,8 @@ exports.handler = async (event) => {
   const type = event.queryStringParameters?.type || 'standings';
 
   const endpoints = {
-    standings:  `https://v3.football.api-sports.io/standings?league=${WC_LEAGUE}&season=${WC_SEASON}`,
-    matches:    `https://v3.football.api-sports.io/fixtures?league=${WC_LEAGUE}&season=${WC_SEASON}`,
-    scorers:    `https://v3.football.api-sports.io/players/topscorers?league=${WC_LEAGUE}&season=${WC_SEASON}`,
+    standings: `https://api.football-data.org/v4/competitions/WC/standings`,
+    matches:   `https://api.football-data.org/v4/competitions/WC/matches`,
   };
 
   const url = endpoints[type];
@@ -20,10 +16,7 @@ exports.handler = async (event) => {
 
   try {
     const res = await fetch(url, {
-      headers: {
-        'x-apisports-key': key,
-        'x-rapidapi-key':  key,
-      }
+      headers: { 'X-Auth-Token': key }
     });
     const data = await res.json();
     return {
