@@ -626,7 +626,7 @@
 
 <script>
 // ─── API-Football 設定 ───────────────────────────────────────────────────
-const API_FOOTBALL_KEY = ''; // ← api-football.com で取得したキーをここに貼る
+const API_FOOTBALL_KEY = 'a4a1dce9b04b7909dd44df54ef53c3f6';
 const WC_LEAGUE_ID = 1;      // World Cup リーグID（開幕後に要確認）
 const WC_SEASON    = 2026;
 
@@ -1335,6 +1335,28 @@ function submitScorerPick() {
   }).catch(err => showToast('エラー: ' + err.message));
 }
 
+let wcLeagueIdResolved = null; // 自動検索で確定したリーグID
+
+async function apiFetch(path) {
+  const res = await fetch(`https://v3.football.api-sports.io${path}`, {
+    headers: { 'x-apisports-key': API_FOOTBALL_KEY }
+  });
+  return res.json();
+}
+
+async function resolveWcLeagueId() {
+  if (wcLeagueIdResolved) return wcLeagueIdResolved;
+  const json = await apiFetch(`/leagues?season=${WC_SEASON}`);
+  const list = json.response || [];
+  const wc = list.find(l => /world.?cup/i.test(l.league.name))
+          || list.find(l => /fifa/i.test(l.league.name))
+          || list.find(l => /wc/i.test(l.league.name));
+  wcLeagueIdResolved = wc?.league?.id || WC_LEAGUE_ID;
+  console.log('WC leagues found:', list.map(l => `${l.league.id}:${l.league.name}`));
+  console.log('Using league ID:', wcLeagueIdResolved);
+  return wcLeagueIdResolved;
+}
+
 async function fetchTopScorers() {
   const el      = document.getElementById('scorer-ranking');
   const notice  = document.getElementById('sc-api-notice');
@@ -1349,15 +1371,24 @@ async function fetchTopScorers() {
   el.innerHTML = '<div class="loading">取得中...</div>';
 
   try {
-    const res  = await fetch(
-      `https://v3.football.api-sports.io/players/topscorers?league=${WC_LEAGUE_ID}&season=${WC_SEASON}`,
-      { headers: { 'x-apisports-key': API_FOOTBALL_KEY } }
-    );
-    const json = await res.json();
+    const leagueId = await resolveWcLeagueId();
+    const json = await apiFetch(`/players/topscorers?league=${leagueId}&season=${WC_SEASON}`);
     const list = json.response || [];
+    const errors = json.errors;
+
+    if (errors && Object.keys(errors).length) {
+      el.innerHTML = `<div class="empty" style="padding:24px;">APIエラー: ${JSON.stringify(errors)}</div>`;
+      return;
+    }
 
     if (!list.length) {
-      el.innerHTML = '<div class="empty" style="padding:24px;">まだデータがありません<br><small style="color:var(--text-muted);">大会開幕後に更新されます</small></div>';
+      el.innerHTML = `<div class="empty" style="padding:24px;">
+        まだ得点データがありません 📊<br>
+        <small style="color:var(--text-muted);display:block;margin-top:8px;">
+          リーグID: ${leagueId} / シーズン: ${WC_SEASON}<br>
+          試合が進むと自動で表示されます
+        </small>
+      </div>`;
       return;
     }
 
@@ -1372,7 +1403,7 @@ async function fetchTopScorers() {
         <th style="text-align:center;">🅰️</th>
       </tr></thead>
       <tbody>${list.slice(0, 20).map((p, i) => {
-        const st = p.statistics[0] || {};
+        const st      = p.statistics[0] || {};
         const goals   = st.goals?.total   ?? 0;
         const assists = st.goals?.assists  ?? 0;
         const medal   = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
