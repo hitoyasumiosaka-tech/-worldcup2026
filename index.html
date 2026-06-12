@@ -47,6 +47,15 @@
   .stat-card .val { font-size:22px; font-weight:800; }
   .stat-card .lbl { font-size:11px; color:var(--text-dim); margin-top:2px; letter-spacing:.04em; }
 
+  /* SCORER HERO BUTTON */
+  .scorer-hero-btn { width:100%; background:linear-gradient(135deg,rgba(232,184,75,0.15),rgba(232,184,75,0.08)); border:1.5px solid var(--gold); border-radius:var(--r); padding:18px 20px; display:flex; align-items:center; gap:16px; cursor:pointer; font-family:inherit; color:var(--gold); transition:all .18s; margin-bottom:12px; }
+  .scorer-hero-btn:hover { background:rgba(232,184,75,0.22); transform:translateY(-1px); }
+  .scorer-hero-btn:active { transform:translateY(0); opacity:.85; }
+  .scorer-hero-btn .sh-icon { font-size:34px; flex-shrink:0; }
+  .scorer-hero-btn .sh-text { text-align:left; }
+  .scorer-hero-btn .sh-title { font-size:16px; font-weight:900; letter-spacing:.03em; }
+  .scorer-hero-btn .sh-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+
   /* ACTION BUTTONS */
   .action-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:28px; }
   .action-btn { background:#fff; border:2px solid #1a1a5e; border-radius:var(--r); padding:14px 16px; text-align:center; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; color:#1a1a5e; transition:all .15s; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:8px; }
@@ -54,6 +63,41 @@
   .action-btn:active { transform:translateY(0); }
   .action-btn .ab-icon { font-size:18px; flex-shrink:0; }
   @media(max-width:500px) { .action-btns { grid-template-columns:1fr; } }
+
+  /* SCORER MODAL */
+  .scorer-modal-overlay { padding:0 !important; align-items:stretch !important; justify-content:stretch !important; }
+  .scorer-modal { width:100vw; max-width:100vw; height:100vh; height:100dvh; border-radius:0 !important; display:flex; flex-direction:column; padding:0; overflow:hidden; border:none !important; }
+  .scorer-modal-header { padding:20px 20px 0; flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); }
+  .scorer-modal-header h2 { font-size:20px; font-weight:900; color:var(--gold); margin-bottom:16px; }
+  .scorer-modal-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:20px 16px 8px; }
+  .scorer-modal-footer { padding:12px 16px; padding-bottom:max(12px,env(safe-area-inset-bottom)); border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+
+  /* PICK CARDS */
+  .picks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-bottom:28px; }
+  .pick-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 12px; text-align:center; }
+  .pick-card.has-pick { border-color:rgba(232,184,75,0.4); }
+  .pick-card-name { font-size:12px; color:var(--text-dim); font-weight:600; margin-bottom:8px; }
+  .pick-card-player { font-size:14px; font-weight:800; color:var(--gold); line-height:1.3; }
+  .pick-card-empty { font-size:12px; color:var(--text-muted); font-style:italic; }
+  .pick-card-time { font-size:10px; color:var(--text-muted); margin-top:5px; }
+
+  /* SCORER INPUT */
+  .scorer-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); padding:10px 12px; color:var(--text); font-size:14px; font-family:inherit; outline:none; -webkit-appearance:none; }
+  .scorer-input:focus { border-color:var(--gold); }
+  .scorer-input::placeholder { color:var(--text-muted); }
+
+  /* RANKING TABLE */
+  .ranking-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:28px; }
+  .ranking-table { width:100%; border-collapse:collapse; }
+  .ranking-table th { background:var(--surface2); font-size:11px; color:var(--text-muted); padding:9px 12px; text-align:left; border-bottom:1px solid var(--border); letter-spacing:.08em; }
+  .ranking-table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  .ranking-table tr:last-child td { border-bottom:none; }
+  .rank-num { font-weight:900; font-size:15px; color:var(--gold); text-align:center; width:32px; }
+  .rank-photo { width:34px; height:34px; border-radius:50%; object-fit:cover; background:var(--surface2); }
+  .rank-goals { font-weight:900; color:var(--gold); font-size:15px; text-align:center; }
+  .rank-assists { color:var(--text-dim); text-align:center; }
+  .api-notice { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:16px; font-size:12px; color:var(--text-dim); line-height:1.8; margin-bottom:20px; }
+  .api-notice b { color:var(--gold); }
 
   /* GROUP LEAGUE MODAL */
   .group-modal { max-width:720px; max-height:90vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
@@ -292,7 +336,10 @@
   </div>
 
   <!-- ACTION BUTTONS -->
-  <div class="action-btns">
+  <div class="action-btns" style="grid-template-columns:1fr;">
+    <button class="action-btn" onclick="openModal('scorer-modal')">
+      <span class="ab-icon">👑</span>俺の得点王
+    </button>
     <button class="action-btn" onclick="openModal('rule-modal')">
       <span class="ab-icon">📋</span>ルールを見る
     </button>
@@ -421,6 +468,61 @@
 
 </div>
 
+<!-- SCORER MODAL -->
+<div class="modal-overlay scorer-modal-overlay" id="scorer-modal">
+  <div class="modal scorer-modal">
+    <div class="scorer-modal-header">
+      <h2>👑 俺の得点王</h2>
+    </div>
+    <div class="scorer-modal-body">
+
+      <!-- API KEY NOTICE (hidden when key is set) -->
+      <div class="api-notice" id="sc-api-notice" style="display:none;">
+        ⚙️ APIキー未設定 — JSの <b>API_FOOTBALL_KEY</b> に入力するとリアルタイムランキングが表示されます。<br>
+        登録: <b>api-football.com</b>（無料 100回/日）
+      </div>
+
+      <!-- PICK FORM -->
+      <div class="stitle">得点王を予想する</div>
+      <div class="add-card" style="margin-bottom:28px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;">
+          <div class="field">
+            <label>名前</label>
+            <select id="sc-name" class="scorer-input" style="padding-right:32px;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%237070a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 11px center;appearance:none;-webkit-appearance:none;">
+              <option value="" disabled selected>選択...</option>
+              <option>慧介</option><option>健人</option><option>八尋</option><option>竣平</option>
+              <option>拓海</option><option>宏樹</option><option>海斗</option><option>健太</option>
+              <option>いーくん</option><option>りるちゃん</option><option>擁くん</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>得点王予想選手</label>
+            <input id="sc-player" type="text" class="scorer-input" placeholder="例: エムバペ" autocomplete="off">
+          </div>
+          <button class="btn btn-add" style="padding:11px 18px;" onclick="submitScorerPick()">登録</button>
+        </div>
+      </div>
+
+      <!-- ALL PICKS -->
+      <div class="stitle">みんなの予想</div>
+      <div class="picks-grid" id="scorer-picks-grid">
+        <div class="loading">接続中...</div>
+      </div>
+
+      <!-- LIVE RANKING -->
+      <div class="stitle">⚽ リアルタイム得点ランキング <span id="sc-rank-updated" style="font-size:10px;color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;"></span></div>
+      <div id="scorer-ranking"><div class="loading">取得中...</div></div>
+
+    </div>
+    <div class="scorer-modal-footer">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn btn-ghost" style="padding:14px;font-size:14px;" onclick="fetchTopScorers()">🔄 ランキング更新</button>
+        <button class="rule-close-btn" onclick="closeModal('scorer-modal')">✕ 閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- RULE MODAL -->
 <div class="modal-overlay rule-modal-overlay" id="rule-modal">
   <div class="modal rule-modal">
@@ -523,6 +625,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+// ─── API-Football 設定 ───────────────────────────────────────────────────
+const API_FOOTBALL_KEY = ''; // ← api-football.com で取得したキーをここに貼る
+const WC_LEAGUE_ID = 1;      // World Cup リーグID（開幕後に要確認）
+const WC_SEASON    = 2026;
+
 // ─── Firebase 設定 ────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyD7c-1raWKh_DxEqEENrTvCK01YRuzLPzA",
@@ -881,6 +988,7 @@ function renderTeams() {
 // ─── Utils ────────────────────────────────────────────────────────────────
 function fmt(n) { return n.toLocaleString('ja-JP'); }
 function openModal(id) {
+  if (id === 'scorer-modal') { renderScorerPicks(); fetchTopScorers(); }
   if (id === 'group-modal') buildGroupGrid();
   if (id === 'tourney-modal') {
     if (!tourneyInited) {
@@ -1188,6 +1296,100 @@ function buildGroupGrid() {
       </table>
     </div>`;
   }).join('');
+}
+
+// ─── 得点王予想 ───────────────────────────────────────────────────────────
+const scorerPicksRef = db.ref('scorerPicks');
+let scorerPicks = {};
+
+scorerPicksRef.on('value', snap => {
+  scorerPicks = snap.val() || {};
+  if (document.getElementById('scorer-modal').classList.contains('open')) {
+    renderScorerPicks();
+  }
+});
+
+function renderScorerPicks() {
+  const grid = document.getElementById('scorer-picks-grid');
+  grid.innerHTML = NAMES.map(name => {
+    const pick = scorerPicks[name];
+    return `<div class="pick-card ${pick ? 'has-pick' : ''}">
+      <div class="pick-card-name">${name}</div>
+      ${pick
+        ? `<div class="pick-card-player">⚽ ${pick.player}</div>
+           <div class="pick-card-time">${fmtTime(pick.updatedAt)}</div>`
+        : `<div class="pick-card-empty">未登録</div>`}
+    </div>`;
+  }).join('');
+}
+
+function submitScorerPick() {
+  const name   = document.getElementById('sc-name').value;
+  const player = document.getElementById('sc-player').value.trim();
+  if (!name)   { showToast('名前を選択してください'); return; }
+  if (!player) { showToast('選手名を入力してください'); return; }
+  scorerPicksRef.child(name).set({ player, updatedAt: Date.now() }).then(() => {
+    showToast(`${name} の予想「${player}」を登録しました ✅`);
+    document.getElementById('sc-player').value = '';
+    document.getElementById('sc-name').value = '';
+  }).catch(err => showToast('エラー: ' + err.message));
+}
+
+async function fetchTopScorers() {
+  const el      = document.getElementById('scorer-ranking');
+  const notice  = document.getElementById('sc-api-notice');
+  const updated = document.getElementById('sc-rank-updated');
+
+  if (!API_FOOTBALL_KEY) {
+    notice.style.display = 'block';
+    el.innerHTML = '<div class="empty" style="padding:24px;">APIキーを設定するとここに表示されます 👆</div>';
+    return;
+  }
+  notice.style.display = 'none';
+  el.innerHTML = '<div class="loading">取得中...</div>';
+
+  try {
+    const res  = await fetch(
+      `https://v3.football.api-sports.io/players/topscorers?league=${WC_LEAGUE_ID}&season=${WC_SEASON}`,
+      { headers: { 'x-apisports-key': API_FOOTBALL_KEY } }
+    );
+    const json = await res.json();
+    const list = json.response || [];
+
+    if (!list.length) {
+      el.innerHTML = '<div class="empty" style="padding:24px;">まだデータがありません<br><small style="color:var(--text-muted);">大会開幕後に更新されます</small></div>';
+      return;
+    }
+
+    updated.textContent = '更新: ' + fmtTime(Date.now());
+    el.innerHTML = `<div class="ranking-wrap"><table class="ranking-table">
+      <thead><tr>
+        <th style="text-align:center;">#</th>
+        <th></th>
+        <th>選手</th>
+        <th>チーム</th>
+        <th style="text-align:center;">⚽</th>
+        <th style="text-align:center;">🅰️</th>
+      </tr></thead>
+      <tbody>${list.slice(0, 20).map((p, i) => {
+        const st = p.statistics[0] || {};
+        const goals   = st.goals?.total   ?? 0;
+        const assists = st.goals?.assists  ?? 0;
+        const medal   = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+        return `<tr>
+          <td class="rank-num">${medal || (i + 1)}</td>
+          <td><img class="rank-photo" src="${p.player.photo}" alt="" onerror="this.style.display='none'"></td>
+          <td style="font-weight:700;">${p.player.name}</td>
+          <td style="font-size:12px;color:var(--text-dim);">${st.team?.name || '—'}</td>
+          <td class="rank-goals">${goals}</td>
+          <td class="rank-assists">${assists}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty" style="padding:24px;">取得エラー: ${e.message}</div>`;
+  }
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────
