@@ -1261,13 +1261,21 @@ function saveMatch() {
 }
 
 // ─── グループリーグ描画（ベット者名付き） ─────────────────────────────────
-function buildGroupGrid() {
+function renderGroupGrid(standingsMap) {
   const grid = document.getElementById('group-grid');
   const groups = [...new Set(TEAMS.map(t => t.g))].sort();
   grid.innerHTML = groups.map(g => {
-    const teams = TEAMS.filter(t => t.g === g);
+    let teams = TEAMS.filter(t => t.g === g);
+    // standingsMapがあれば勝点順にソート
+    if (standingsMap && Object.keys(standingsMap).length > 0) {
+      teams = [...teams].sort((a, b) => {
+        const sa = standingsMap[a.name] || {};
+        const sb = standingsMap[b.name] || {};
+        return (sb.pts || 0) - (sa.pts || 0);
+      });
+    }
     const rows = teams.map(t => {
-      // このチームに賭けている人を取得（最新エントリーのみ）
+      const s = (standingsMap && standingsMap[t.name]) || {};
       const bettors = [...new Set(
         entries.filter(e => e.team === t.name && !e.retired).map(e => e.name)
       )];
@@ -1281,10 +1289,10 @@ function buildGroupGrid() {
             ${bettorChips}
           </div>
         </td>
-        <td class="num">—</td>
-        <td class="num">—</td>
-        <td class="num">—</td>
-        <td class="num">—</td>
+        <td class="num">${s.won  !== undefined ? s.won  : '—'}</td>
+        <td class="num">${s.draw !== undefined ? s.draw : '—'}</td>
+        <td class="num">${s.lost !== undefined ? s.lost : '—'}</td>
+        <td class="num">${s.pts  !== undefined ? s.pts  : '—'}</td>
       </tr>`;
     }).join('');
     return `<div class="group-block">
@@ -1295,6 +1303,33 @@ function buildGroupGrid() {
       </table>
     </div>`;
   }).join('');
+}
+
+async function buildGroupGrid() {
+  const grid = document.getElementById('group-grid');
+  grid.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-dim);">読み込み中...</div>';
+  try {
+    const res = await fetch(`/.netlify/functions/football?type=standings&season=${WC_SEASON}`);
+    const data = await res.json();
+    // football-data.org のレスポンスをチーム名→成績のマップに変換
+    const standingsMap = {};
+    const allStandings = data?.standings || [];
+    allStandings.forEach(group => {
+      (group.table || []).forEach(row => {
+        const name = row.team?.name || '';
+        standingsMap[name] = {
+          won:  row.won,
+          draw: row.draw,
+          lost: row.lost,
+          pts:  row.points,
+        };
+      });
+    });
+    renderGroupGrid(standingsMap);
+  } catch (e) {
+    // APIエラー時は「—」表示にフォールバック
+    renderGroupGrid({});
+  }
 }
 
 // ─── 得点王予想 ───────────────────────────────────────────────────────────
