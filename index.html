@@ -1403,7 +1403,7 @@ function buildGroupGrid() {
     const rows = teams.map(t => {
       // このチームに賭けている人を取得（最新エントリーのみ）
       const bettors = [...new Set(
-        entries.filter(e => e.team === t.name && !e.retired).map(e => e.name)
+        entries.filter(e => e.team === t.name && !e.retired && !e.deletedAt).map(e => e.name)
       )];
       const bettorChips = bettors.length && isRevealed()
         ? `<div class="bettors-row">${bettors.map(n => `<span class="bettor-chip">${n}</span>`).join('')}</div>`
