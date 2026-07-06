@@ -165,7 +165,7 @@
   .bracket-close-btn { position:absolute; top:10px; right:14px; z-index:10; background:rgba(11,18,32,.9); border:1.5px solid #4a7090; color:#aec6e0; font-size:18px; width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
 
   /* BRACKET */
-  .bracket-outer { overflow:hidden; flex:1; touch-action:none; padding:10px 14px; background:#0b1220; position:relative; }
+  .bracket-outer { overflow:hidden; flex:1; touch-action:none; padding:10px 14px; background:#050810; position:relative; }
   .bracket-zoom-wrap { transform-origin:top center; transition:transform .15s; display:inline-block; min-width:100%; }
   .bracket { display:grid; grid-template-columns:174px 30px 150px 30px 130px 30px 120px 68px 120px 30px 130px 30px 150px 30px 174px; align-items:stretch; min-width:1400px; }
   .b-col { display:flex; flex-direction:column; }
@@ -179,7 +179,7 @@
   .bm-team { display:flex; align-items:center; gap:0; border-bottom:1px solid #1a3048; }
   .bm-team.last { border-bottom:none; }
   .bm-team.win { background:#0e2010; }
-  .bm-team.lose { opacity:.38; filter:grayscale(.6); }
+  .bm-team.lose { opacity:.18; filter:grayscale(1) brightness(.5); }
   .bm-seed { min-width:22px; padding:2px 2px; background:#081018; display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; border-right:1px solid #1a3048; flex-shrink:0; gap:1px; }
   .bm-sg { font-size:7px; font-weight:900; color:#80a8c8; line-height:1; }
   .bm-sp { font-size:6px; font-weight:700; color:#507090; line-height:1; }
@@ -1283,13 +1283,16 @@ function bmHTML(m, extraCls='', lvl=0) {
   const h = data.home, a = data.away;
   const hasScore = data.hs !== undefined && data.as !== undefined;
   const hGrp = m.homeGrp || '', hPos = m.homePos || '', aGrp = m.awayGrp || '', aPos = m.awayPos || '';
-  const hLose = hasScore && data.w === 'a';
-  const aLose = hasScore && data.w === 'h';
+  // 負け判定: このカードで負けた OR このカードで勝ったが後のラウンドで脱落
+  const hElim = (hasScore && data.w==='a') || (hasScore && data.w==='h' && h && !isTeamAlive(h.name));
+  const aElim = (hasScore && data.w==='h') || (hasScore && data.w==='a' && a && !isTeamAlive(a.name));
+  const hWin  = hasScore && data.w==='h' && !hElim;
+  const aWin  = hasScore && data.w==='a' && !aElim;
   return `<div class="bm ${extraCls}" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
     <div class="bm-date">${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
-    ${bmTeamRowHTML(h, hasScore?data.hs:undefined, data.w==='h', hLose, false, bmSeed(hGrp,hPos))}
+    ${bmTeamRowHTML(h, hasScore?data.hs:undefined, hWin, hElim, false, bmSeed(hGrp,hPos))}
     ${teamChipsHTML(h, lvl)}
-    ${bmTeamRowHTML(a, hasScore?data.as:undefined, data.w==='a', aLose, true, bmSeed(aGrp,aPos))}
+    ${bmTeamRowHTML(a, hasScore?data.as:undefined, aWin, aElim, true, bmSeed(aGrp,aPos))}
     ${teamChipsHTML(a, lvl)}
   </div>`;
 }
@@ -1374,13 +1377,15 @@ function r32CardHTML(m) {
   const data = matchData(m);
   const h = data.home, a = data.away;
   const hasScore = data.hs !== undefined && data.as !== undefined;
-  const hLose = hasScore && data.w === 'a';
-  const aLose = hasScore && data.w === 'h';
+  const hElim = (hasScore && data.w==='a') || (hasScore && data.w==='h' && h && !isTeamAlive(h.name));
+  const aElim = (hasScore && data.w==='h') || (hasScore && data.w==='a' && a && !isTeamAlive(a.name));
+  const hWin  = hasScore && data.w==='h' && !hElim;
+  const aWin  = hasScore && data.w==='a' && !aElim;
   return `<div class="bm" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
     <div class="bm-date">${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
-    ${bmTeamRowHTML(h, hasScore?data.hs:undefined, data.w==='h', hLose, false, '<div class="bm-seed"></div>')}
+    ${bmTeamRowHTML(h, hasScore?data.hs:undefined, hWin, hElim, false, '<div class="bm-seed"></div>')}
     ${teamChipsHTML(h, 0)}
-    ${bmTeamRowHTML(a, hasScore?data.as:undefined, data.w==='a', aLose, true, '<div class="bm-seed"></div>')}
+    ${bmTeamRowHTML(a, hasScore?data.as:undefined, aWin, aElim, true, '<div class="bm-seed"></div>')}
     ${teamChipsHTML(a, 0)}
   </div>`;
 }
