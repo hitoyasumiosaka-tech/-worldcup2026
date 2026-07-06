@@ -1365,7 +1365,7 @@ function calcPairColors(matches) {
     const w1 = d1&&d1.w ? (d1.w==='h'?d1.home:d1.away) : null;
     const top = !!(w0 && isTeamAlive(w0.name));
     const bot = !!(w1 && isTeamAlive(w1.name));
-    result.push({ top, bot, mid: top && bot });
+    result.push({ top, bot, mid: top || bot });
   }
   return result;
 }
