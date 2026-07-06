@@ -167,42 +167,43 @@
   .tourney-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
 
   /* BRACKET */
-  .bracket-outer { overflow:auto; height:100%; -webkit-overflow-scrolling:touch; padding:12px 16px 16px; background:radial-gradient(ellipse at top,rgba(232,184,75,.05),transparent 60%); }
+  .bracket-outer { overflow:auto; height:100%; -webkit-overflow-scrolling:touch; padding:12px 16px 16px; background:#06090f; }
   .bracket-zoom-wrap { transform-origin:top center; transition:transform .15s; display:inline-block; min-width:100%; }
   .bracket { display:grid; grid-template-columns:174px 30px 150px 30px 130px 30px 120px 68px 120px 30px 130px 30px 150px 30px 174px; align-items:stretch; min-width:1400px; }
   .b-col { display:flex; flex-direction:column; }
   .b-col-inner { display:flex; flex-direction:column; flex:1; justify-content:space-around; }
-  .b-rlabel { font-size:9px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); opacity:.75; text-align:center; padding-bottom:6px; }
-  .bm { background:linear-gradient(160deg,#1c1730,#141225); border:1px solid #2a2650; border-radius:8px; overflow:hidden; margin:2px 0; cursor:pointer; transition:all .15s; box-shadow:0 2px 8px rgba(0,0,0,.3); }
-  .bm:hover { border-color:var(--gold); box-shadow:0 2px 12px rgba(232,184,75,.2); }
-  .bm.gold { border:1.5px solid var(--gold); background:linear-gradient(160deg,#2a2210,#1c1730); box-shadow:0 4px 18px rgba(232,184,75,.28), inset 0 0 0 1px rgba(232,184,75,.1); }
-  .bm-date { font-size:9px; color:var(--text-muted); padding:4px 7px 2px; letter-spacing:.02em; }
-  .bm-note { color:var(--gold); font-weight:700; opacity:.85; }
-  .bm-team { display:flex; align-items:center; gap:0; border-bottom:1px solid rgba(232,184,75,.08); }
+  .b-rlabel { font-size:10px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:#fff; opacity:1; text-align:center; padding-bottom:8px; background:rgba(232,184,75,.18); border-radius:4px 4px 0 0; margin-bottom:2px; padding-top:4px; }
+  .bm { background:#0f1828; border:1.5px solid #2e3f58; border-radius:6px; overflow:hidden; margin:3px 0; cursor:pointer; transition:border-color .15s,box-shadow .15s; box-shadow:0 2px 6px rgba(0,0,0,.5); }
+  .bm:hover { border-color:#e8b84b; box-shadow:0 2px 14px rgba(232,184,75,.35); }
+  .bm.gold { border:2px solid #e8b84b; background:#0f1828; box-shadow:0 4px 20px rgba(232,184,75,.4); }
+  .bm-date { font-size:9px; color:#7a9ab8; padding:4px 8px 3px; letter-spacing:.02em; border-bottom:1px solid #1e2e42; background:#0a111c; }
+  .bm-note { color:#e8b84b; font-weight:700; }
+  .bm-team { display:flex; align-items:center; gap:0; border-bottom:1px solid #1e2e42; }
   .bm-team.last { border-bottom:none; }
-  .bm-team.win { background:rgba(232,184,75,.09); }
-  .bm-seed { min-width:28px; padding:4px 3px; background:rgba(0,0,0,.25); display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; border-right:1px solid rgba(232,184,75,.08); flex-shrink:0; gap:1px; }
-  .bm-sg { font-size:8px; font-weight:800; color:#8899aa; letter-spacing:.02em; line-height:1; }
-  .bm-sp { font-size:7px; font-weight:700; color:#6a7d90; line-height:1; }
-  .bm-info { display:flex; align-items:center; gap:4px; padding:4px 6px; flex:1; min-width:0; }
-  .bm-fl { font-size:12px; flex-shrink:0; line-height:1; }
-  .bm-nm { font-size:11px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
-  .bm-nm.tbd { color:var(--text-muted); font-weight:400; font-style:italic; }
-  .bm-team.win .bm-nm { color:var(--gold); font-weight:900; }
-  .bm-score { font-size:12px; font-weight:900; color:var(--gold); padding-right:4px; flex-shrink:0; }
-  .bm-chips { padding:2px 5px 3px; display:flex; flex-wrap:wrap; gap:2px; border-top:1px solid rgba(232,184,75,.08); background:rgba(0,0,0,.2); }
+  .bm-team.win { background:#1a2a18; }
+  .bm-seed { min-width:26px; padding:4px 3px; background:#08101a; display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; border-right:1px solid #1e2e42; flex-shrink:0; gap:1px; }
+  .bm-sg { font-size:8px; font-weight:900; color:#aec6e0; letter-spacing:.02em; line-height:1; }
+  .bm-sp { font-size:7px; font-weight:700; color:#7a9ab8; line-height:1; }
+  .bm-info { display:flex; align-items:center; gap:5px; padding:5px 7px; flex:1; min-width:0; }
+  .bm-fl { font-size:13px; flex-shrink:0; line-height:1; }
+  .bm-nm { font-size:11px; font-weight:700; color:#dce8f4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+  .bm-nm.tbd { color:#3a5570; font-weight:400; font-style:italic; }
+  .bm-team.win .bm-nm { color:#6ddd5a; font-weight:900; }
+  .bm-score { font-size:13px; font-weight:900; color:#e8b84b; padding-right:6px; flex-shrink:0; }
+  .bm-team.win .bm-score { color:#6ddd5a; }
+  .bm-chips { padding:3px 6px 4px; display:flex; flex-wrap:wrap; gap:3px; border-top:1px solid #1e2e42; background:#08101a; }
   .bm-chip { background:linear-gradient(135deg,#f7e06a 0%,#e8b93a 45%,#c47f10 100%); border:1px solid #f0cc50; border-radius:4px; padding:1px 6px; font-size:9px; color:#3d1f00; font-weight:800; letter-spacing:.03em; box-shadow:0 1px 4px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.35); text-shadow:0 1px 0 rgba(255,220,80,.4); }
-  .bm-tbd { background:#12171f; border:1px dashed #2a2650; border-radius:8px; margin:2px 0; opacity:.55; }
-  .bm-tbd-row { display:flex; align-items:center; gap:5px; padding:4px 8px; border-bottom:1px dashed #2a2650; }
+  .bm-tbd { background:#08101a; border:1.5px dashed #1e2e42; border-radius:6px; margin:3px 0; }
+  .bm-tbd-row { display:flex; align-items:center; gap:6px; padding:5px 8px; border-bottom:1px solid #1a2535; }
   .bm-tbd-row.last { border-bottom:none; }
-  .bm-tbd-dot { width:10px; height:10px; border-radius:2px; background:#1e2535; flex-shrink:0; }
-  .bm-tbd-nm { font-size:10px; color:#2a3a4a; font-style:italic; }
+  .bm-tbd-dot { width:10px; height:10px; border-radius:2px; background:#1a2840; flex-shrink:0; }
+  .bm-tbd-nm { font-size:10px; color:#2e4460; font-style:italic; }
   .b-conn { display:flex; align-items:stretch; }
   .b-conn svg { flex:1; display:block; }
   .b-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 4px; align-self:stretch; }
-  .b-trophy { font-size:28px; filter:drop-shadow(0 2px 6px rgba(232,184,75,.5)); }
-  .b-final-lbl { font-size:14px; font-weight:900; letter-spacing:.14em; color:var(--gold); text-shadow:0 0 10px rgba(232,184,75,.5); }
-  .b-3rd-lbl { font-size:9px; font-weight:700; letter-spacing:.08em; color:var(--text-muted); margin-top:6px; border-top:1px solid rgba(255,255,255,.1); padding-top:6px; width:100%; text-align:center; }
+  .b-trophy { font-size:28px; filter:drop-shadow(0 2px 8px rgba(232,184,75,.7)); }
+  .b-final-lbl { font-size:10px; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); }
+  .b-3rd-lbl { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7a9ab8; margin-top:4px; }
   .zoom-pct { font-size:12px; font-weight:700; color:var(--text-dim); min-width:36px; text-align:center; }
 
   /* EDIT MATCH MODAL */
@@ -570,8 +571,7 @@
 <div class="modal-overlay" id="tourney-modal">
   <div class="modal tourney-modal">
     <div class="tourney-header">
-      <h2 style="font-size:15px;letter-spacing:.08em;">北中米W杯　ノックアウトステージ</h2>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">★ キックオフ日時はすべて日本時間</div>
+      <h2>🏆 トーナメント</h2>
     </div>
     <div class="tourney-body">
       <div class="bracket-outer" id="bracket-outer">
@@ -1290,7 +1290,7 @@ function connSVG(dir, rows, h) {
   const step = h / rows; let paths = '';
   for (let i = 0; i < rows; i += 2) {
     const y1 = step*i+step*.5, y2 = step*(i+1)+step*.5, ym = (y1+y2)/2;
-    const c = '#2a3545', w = 1.5;
+    const c = '#3a5878', w = 1.5;
     if (dir === 'left') {
       paths += `<line x1="0" y1="${y1}" x2="14" y2="${y1}" stroke="${c}" stroke-width="${w}"/>`;
       paths += `<line x1="0" y1="${y2}" x2="14" y2="${y2}" stroke="${c}" stroke-width="${w}"/>`;
@@ -1340,7 +1340,7 @@ function renderBracket() {
     colHTML(BS.SFL, '準決勝', 3) +
     `<div class="b-center" id="bcol-center">
       <div class="b-trophy">🏆</div>
-      <div class="b-final-lbl">優 勝</div>
+      <div class="b-final-lbl">FINAL</div>
       ${bmHTML(BS.F[0],'gold',4)}
       <div class="b-3rd-lbl">3位決定戦</div>
       <div class="bm-tbd" id="bm-${tp.id}" onclick="openEditMatch('${tp.id}','${tp.label}')" style="cursor:pointer;opacity:.7;width:100%;">
