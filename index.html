@@ -1077,7 +1077,7 @@ function openModal(id) {
     } else {
       renderBracket();
     }
-    requestAnimationFrame(() => { drawBracketConnectors(); initBracketInteraction(); });
+    requestAnimationFrame(() => { drawBracketConnectors(); initBracketInteraction(); bkFitToWidth(); });
   }
   document.getElementById(id).classList.add('open');
 }
@@ -1222,6 +1222,31 @@ function getBettors(teamName) {
   )];
 }
 
+// チームごとに「現時点で勝ち進んでいる最新ラウンド」を調べる（予想チップをそのカードだけに出すため）
+let teamLatestRound = {};
+function computeTeamLatestRound() {
+  teamLatestRound = {};
+  function mark(m, lvl) {
+    const d = matchData(m);
+    [d.home, d.away].forEach(team => {
+      if (team && team.name) teamLatestRound[team.name] = Math.max(teamLatestRound[team.name] ?? -1, lvl);
+    });
+  }
+  R32_MATCHES.forEach(m => mark(m, 0));
+  [...BS.R16L, ...BS.R16R].forEach(m => mark(m, 1));
+  [...BS.QFL, ...BS.QFR].forEach(m => mark(m, 2));
+  [...BS.SFL, ...BS.SFR].forEach(m => mark(m, 3));
+  mark(BS.F[0], 4);
+}
+
+function chipsHTMLForMatch(h, a, lvl) {
+  const names = [];
+  if (h && h.name && teamLatestRound[h.name] === lvl) names.push(...getBettors(h.name));
+  if (a && a.name && teamLatestRound[a.name] === lvl) names.push(...getBettors(a.name));
+  const bettors = [...new Set(names)];
+  return bettors.length ? `<div class="bm-chips">${bettors.map(n=>`<span class="bm-chip">${n}</span>`).join('')}</div>` : '';
+}
+
 function bmSeed(grp, pos) {
   if (!grp && pos !== '3位') return `<div class="bm-seed"></div>`;
   if (pos === '3位') return `<div class="bm-seed"><span class="bm-sg" style="font-size:7px">3位</span></div>`;
@@ -1238,16 +1263,11 @@ function bmTeamRowHTML(team, score, isWin, isLast, seedHtml) {
   return `<div class="bm-team ${isLast?'last':''} ${isWin?'win':''}">${seedHtml}<div class="bm-info"><span class="bm-fl">${team?team.flag:'🏳️'}</span><span class="bm-nm ${team?'':'tbd'}">${team?team.name:'TBD'}</span>${scoreHtml}</div></div>`;
 }
 
-function bmHTML(m, extraCls='') {
+function bmHTML(m, extraCls='', lvl=0) {
   const data = matchData(m);
   const h = data.home, a = data.away;
   const hasScore = data.hs !== undefined && data.as !== undefined;
-  const hBettors = getBettors(h ? h.name : '');
-  const aBettors = getBettors(a ? a.name : '');
-  const allBettors = [...new Set([...hBettors, ...aBettors])];
-  const chipsHtml = allBettors.length
-    ? `<div class="bm-chips">${allBettors.map(n=>`<span class="bm-chip">${n}</span>`).join('')}</div>`
-    : '';
+  const chipsHtml = chipsHTMLForMatch(h, a, lvl);
   const hGrp = m.homeGrp || '', hPos = m.homePos || '', aGrp = m.awayGrp || '', aPos = m.awayPos || '';
   return `<div class="bm ${extraCls}" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
     <div class="bm-date">📅 ${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
@@ -1261,8 +1281,8 @@ function tbdHTML() {
   return `<div class="bm-tbd"><div class="bm-tbd-row"><div class="bm-tbd-dot"></div><span class="bm-tbd-nm">TBD</span></div><div class="bm-tbd-row last"><div class="bm-tbd-dot"></div><span class="bm-tbd-nm">TBD</span></div></div>`;
 }
 
-function colHTML(matches, label) {
-  return `<div class="b-col" id="bcol-${label}"><div class="b-rlabel">${label}</div><div class="b-col-inner">${matches.map(m=>bmHTML(m)).join('')}</div></div>`;
+function colHTML(matches, label, lvl) {
+  return `<div class="b-col" id="bcol-${label}"><div class="b-rlabel">${label}</div><div class="b-col-inner">${matches.map(m=>bmHTML(m,'',lvl)).join('')}</div></div>`;
 }
 
 function connSVG(dir, rows, h) {
@@ -1289,9 +1309,7 @@ function r32CardHTML(m) {
   const data = matchData(m);
   const h = data.home, a = data.away;
   const hasScore = data.hs !== undefined && data.as !== undefined;
-  const allBettors = [...new Set([...getBettors(h?h.name:''), ...getBettors(a?a.name:'')])];
-  const chipsHtml = allBettors.length
-    ? `<div class="bm-chips">${allBettors.map(n=>`<span class="bm-chip">${n}</span>`).join('')}</div>` : '';
+  const chipsHtml = chipsHTMLForMatch(h, a, 0);
   return `<div class="bm" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
     <div class="bm-date">📅 ${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
     ${bmTeamRowHTML(h, hasScore?data.hs:undefined, data.w==='h', false, '<div class="bm-seed"></div>')}
@@ -1305,6 +1323,7 @@ const BK_H = 920;
 function renderBracket() {
   const c = document.getElementById('bracket-container');
   if (!c) return;
+  computeTeamLatestRound();
   c.style.height = BK_H + 'px';
   const tp = BS.TP[0];
   const R32L = R32_MATCHES.slice(0, 8);
@@ -1313,15 +1332,15 @@ function renderBracket() {
   c.innerHTML =
     `<div class="b-col" id="bcol-r32l"><div class="b-rlabel">ベスト32</div><div class="b-col-inner">${R32L.map(m=>r32CardHTML(m)).join('')}</div></div>` +
     `<div class="b-conn" id="bconn-l0"></div>` +
-    colHTML(BS.R16L, 'ベスト16') +
+    colHTML(BS.R16L, 'ベスト16', 1) +
     `<div class="b-conn" id="bconn-l1"></div>` +
-    colHTML(BS.QFL, '準々決勝') +
+    colHTML(BS.QFL, '準々決勝', 2) +
     `<div class="b-conn" id="bconn-l2"></div>` +
-    colHTML(BS.SFL, '準決勝') +
+    colHTML(BS.SFL, '準決勝', 3) +
     `<div class="b-center" id="bcol-center">
       <div class="b-trophy">🏆</div>
       <div class="b-final-lbl">FINAL</div>
-      ${bmHTML(BS.F[0],'gold')}
+      ${bmHTML(BS.F[0],'gold',4)}
       <div class="b-3rd-lbl">3位決定戦</div>
       <div class="bm-tbd" id="bm-${tp.id}" onclick="openEditMatch('${tp.id}','${tp.label}')" style="cursor:pointer;opacity:.7;width:100%;">
         <div class="bm-date">📅 ${fmtMatchDate(tp.date,tp.time)}</div>
@@ -1329,11 +1348,11 @@ function renderBracket() {
         <div class="bm-tbd-row last"><div class="bm-tbd-dot"></div><span class="bm-tbd-nm">TBD</span></div>
       </div>
     </div>` +
-    colHTML(BS.SFR, '準決勝') +
+    colHTML(BS.SFR, '準決勝', 3) +
     `<div class="b-conn" id="bconn-r2"></div>` +
-    colHTML(BS.QFR, '準々決勝') +
+    colHTML(BS.QFR, '準々決勝', 2) +
     `<div class="b-conn" id="bconn-r1"></div>` +
-    colHTML(BS.R16R, 'ベスト16') +
+    colHTML(BS.R16R, 'ベスト16', 1) +
     `<div class="b-conn" id="bconn-r0"></div>` +
     `<div class="b-col" id="bcol-r32r"><div class="b-rlabel">ベスト32</div><div class="b-col-inner">${R32R.map(m=>r32CardHTML(m)).join('')}</div></div>`;
 
@@ -1391,6 +1410,20 @@ function bkZoomAt(cx, cy, factor) {
 }
 
 function bkReset() { bkScale=1; bkX=0; bkY=0; bkApply(true); }
+
+// 開いた直後にブラケット全体が画面に収まるように自動で縮小表示する
+function bkFitToWidth() {
+  const outer = document.getElementById('bracket-outer');
+  const wrap  = document.getElementById('bracket-zoom-wrap');
+  if (!outer || !wrap) return;
+  const naturalWidth = wrap.scrollWidth;
+  const ow = outer.clientWidth;
+  if (!naturalWidth || !ow) return;
+  bkScale = Math.max(0.35, Math.min(1, ow / naturalWidth));
+  bkX = 0; bkY = 0;
+  bkClampPan();
+  bkApply(false);
+}
 
 function initBracketInteraction() {
   const outer = document.getElementById('bracket-outer');
@@ -1464,7 +1497,7 @@ function initBracketInteraction() {
   });
 
   // ダブルクリックでリセット
-  outer.addEventListener('dblclick', bkReset);
+  outer.addEventListener('dblclick', () => bkFitToWidth());
 }
 
 function openEditMatch(matchId, label) {
