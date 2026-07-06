@@ -160,50 +160,51 @@
   .rule-img-placeholder { background:var(--surface2); border:2px dashed var(--border); border-radius:8px; padding:40px 20px; color:var(--text-dim); font-size:13px; line-height:2; text-align:center; margin:16px; }
 
   /* TOURNAMENT MODAL */
-  .tourney-modal { max-width:960px; max-height:92vh; display:flex; flex-direction:column; padding:0; overflow:hidden; }
-  .tourney-header { padding:18px 20px 14px; border-bottom:1px solid var(--border); flex-shrink:0; background:linear-gradient(180deg,rgba(232,184,75,.06),transparent); }
-  .tourney-header h2 { color:var(--gold); }
-  .tourney-body { flex:1; overflow:hidden; position:relative; }
-  .tourney-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+  .tourney-modal { max-width:100%; max-height:100%; width:100%; height:100%; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:0; }
+  @media (min-width:600px) { .tourney-modal { max-width:96vw; max-height:96vh; border-radius:16px; } }
+  .tourney-header { padding:10px 16px 8px; border-bottom:1px solid #1e2e42; flex-shrink:0; background:#0a111c; display:flex; align-items:center; justify-content:space-between; }
+  .tourney-header h2 { color:var(--gold); font-size:15px; margin:0; }
+  .tourney-body { flex:1; overflow:hidden; position:relative; min-height:0; }
+  .tourney-footer { padding:8px 16px; padding-bottom:max(8px,env(safe-area-inset-bottom)); border-top:1px solid #1e2e42; flex-shrink:0; background:#0a111c; }
 
   /* BRACKET */
-  .bracket-outer { overflow:auto; height:100%; -webkit-overflow-scrolling:touch; padding:12px 16px 16px; background:#06090f; }
+  .bracket-outer { overflow:hidden; height:100%; touch-action:none; padding:12px 16px 16px; background:#0b1220; }
   .bracket-zoom-wrap { transform-origin:top center; transition:transform .15s; display:inline-block; min-width:100%; }
   .bracket { display:grid; grid-template-columns:174px 30px 150px 30px 130px 30px 120px 68px 120px 30px 130px 30px 150px 30px 174px; align-items:stretch; min-width:1400px; }
   .b-col { display:flex; flex-direction:column; }
   .b-col-inner { display:flex; flex-direction:column; flex:1; justify-content:space-around; }
-  .b-rlabel { font-size:10px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:#fff; opacity:1; text-align:center; padding-bottom:8px; background:rgba(232,184,75,.18); border-radius:4px 4px 0 0; margin-bottom:2px; padding-top:4px; }
-  .bm { background:#0f1828; border:1.5px solid #2e3f58; border-radius:6px; overflow:hidden; margin:3px 0; cursor:pointer; transition:border-color .15s,box-shadow .15s; box-shadow:0 2px 6px rgba(0,0,0,.5); }
-  .bm:hover { border-color:#e8b84b; box-shadow:0 2px 14px rgba(232,184,75,.35); }
-  .bm.gold { border:2px solid #e8b84b; background:#0f1828; box-shadow:0 4px 20px rgba(232,184,75,.4); }
-  .bm-date { font-size:9px; color:#7a9ab8; padding:4px 8px 3px; letter-spacing:.02em; border-bottom:1px solid #1e2e42; background:#0a111c; }
-  .bm-note { color:#e8b84b; font-weight:700; }
-  .bm-team { display:flex; align-items:center; gap:0; border-bottom:1px solid #1e2e42; }
+  .b-rlabel { font-size:10px; font-weight:900; letter-spacing:.1em; color:#f0c040; text-align:center; padding:5px 4px 6px; background:#162035; border-radius:5px 5px 0 0; margin-bottom:3px; border:1px solid #2a4060; border-bottom:none; }
+  .bm { background:#12202f; border:1.5px solid #3a5878; border-radius:6px; overflow:hidden; margin:3px 0; cursor:pointer; transition:border-color .15s,box-shadow .15s; }
+  .bm:hover { border-color:#f0c040; box-shadow:0 0 12px rgba(240,192,64,.3); }
+  .bm.gold { border:2px solid #f0c040; box-shadow:0 0 18px rgba(240,192,64,.4); }
+  .bm-date { font-size:9px; color:#8ab0cc; padding:3px 7px; border-bottom:1px solid #243650; background:#0d1825; }
+  .bm-note { color:#f0c040; font-weight:700; }
+  .bm-team { display:flex; align-items:center; gap:0; border-bottom:1px solid #243650; }
   .bm-team.last { border-bottom:none; }
-  .bm-team.win { background:#1a2a18; }
-  .bm-seed { min-width:26px; padding:4px 3px; background:#08101a; display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; border-right:1px solid #1e2e42; flex-shrink:0; gap:1px; }
-  .bm-sg { font-size:8px; font-weight:900; color:#aec6e0; letter-spacing:.02em; line-height:1; }
-  .bm-sp { font-size:7px; font-weight:700; color:#7a9ab8; line-height:1; }
-  .bm-info { display:flex; align-items:center; gap:5px; padding:5px 7px; flex:1; min-width:0; }
-  .bm-fl { font-size:13px; flex-shrink:0; line-height:1; }
-  .bm-nm { font-size:11px; font-weight:700; color:#dce8f4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
-  .bm-nm.tbd { color:#3a5570; font-weight:400; font-style:italic; }
-  .bm-team.win .bm-nm { color:#6ddd5a; font-weight:900; }
-  .bm-score { font-size:13px; font-weight:900; color:#e8b84b; padding-right:6px; flex-shrink:0; }
-  .bm-team.win .bm-score { color:#6ddd5a; }
-  .bm-chips { padding:3px 6px 4px; display:flex; flex-wrap:wrap; gap:3px; border-top:1px solid #1e2e42; background:#08101a; }
+  .bm-team.win { background:#162a12; }
+  .bm-seed { min-width:26px; padding:3px 2px; background:#0a1520; display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; border-right:1px solid #243650; flex-shrink:0; gap:1px; }
+  .bm-sg { font-size:8px; font-weight:900; color:#90b8d8; line-height:1; }
+  .bm-sp { font-size:7px; font-weight:700; color:#6080a0; line-height:1; }
+  .bm-info { display:flex; align-items:center; gap:5px; padding:5px 6px; flex:1; min-width:0; }
+  .bm-fl { font-size:14px; flex-shrink:0; line-height:1; }
+  .bm-nm { font-size:11px; font-weight:700; color:#e0eeff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+  .bm-nm.tbd { color:#2e4a64; font-weight:400; font-style:italic; }
+  .bm-team.win .bm-nm { color:#5de84a; font-weight:900; }
+  .bm-score { font-size:13px; font-weight:900; color:#f0c040; padding-right:6px; flex-shrink:0; min-width:20px; text-align:right; }
+  .bm-team.win .bm-score { color:#5de84a; }
+  .bm-chips { padding:3px 5px 4px; display:flex; flex-wrap:wrap; gap:3px; border-top:1px solid #243650; background:#0a1520; }
   .bm-chip { background:linear-gradient(135deg,#f7e06a 0%,#e8b93a 45%,#c47f10 100%); border:1px solid #f0cc50; border-radius:4px; padding:1px 6px; font-size:9px; color:#3d1f00; font-weight:800; letter-spacing:.03em; box-shadow:0 1px 4px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.35); text-shadow:0 1px 0 rgba(255,220,80,.4); }
-  .bm-tbd { background:#08101a; border:1.5px dashed #1e2e42; border-radius:6px; margin:3px 0; }
-  .bm-tbd-row { display:flex; align-items:center; gap:6px; padding:5px 8px; border-bottom:1px solid #1a2535; }
+  .bm-tbd { background:#0d1825; border:1.5px dashed #243650; border-radius:6px; margin:3px 0; }
+  .bm-tbd-row { display:flex; align-items:center; gap:6px; padding:5px 8px; border-bottom:1px solid #1a2e44; }
   .bm-tbd-row.last { border-bottom:none; }
-  .bm-tbd-dot { width:10px; height:10px; border-radius:2px; background:#1a2840; flex-shrink:0; }
-  .bm-tbd-nm { font-size:10px; color:#2e4460; font-style:italic; }
+  .bm-tbd-dot { width:10px; height:10px; border-radius:2px; background:#1a3050; flex-shrink:0; }
+  .bm-tbd-nm { font-size:10px; color:#2a4060; font-style:italic; }
   .b-conn { display:flex; align-items:stretch; }
   .b-conn svg { flex:1; display:block; }
   .b-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 4px; align-self:stretch; }
-  .b-trophy { font-size:28px; filter:drop-shadow(0 2px 8px rgba(232,184,75,.7)); }
-  .b-final-lbl { font-size:10px; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); }
-  .b-3rd-lbl { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7a9ab8; margin-top:4px; }
+  .b-trophy { font-size:28px; filter:drop-shadow(0 2px 8px rgba(240,192,64,.7)); }
+  .b-final-lbl { font-size:10px; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:#f0c040; }
+  .b-3rd-lbl { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#8ab0cc; margin-top:4px; }
   .zoom-pct { font-size:12px; font-weight:700; color:var(--text-dim); min-width:36px; text-align:center; }
 
   /* EDIT MATCH MODAL */
@@ -1290,7 +1291,7 @@ function connSVG(dir, rows, h) {
   const step = h / rows; let paths = '';
   for (let i = 0; i < rows; i += 2) {
     const y1 = step*i+step*.5, y2 = step*(i+1)+step*.5, ym = (y1+y2)/2;
-    const c = '#3a5878', w = 1.5;
+    const c = '#4a7090', w = 2;
     if (dir === 'left') {
       paths += `<line x1="0" y1="${y1}" x2="14" y2="${y1}" stroke="${c}" stroke-width="${w}"/>`;
       paths += `<line x1="0" y1="${y2}" x2="14" y2="${y2}" stroke="${c}" stroke-width="${w}"/>`;
@@ -1458,10 +1459,11 @@ function initBracketInteraction() {
     if (outer) outer.style.cursor = 'grab';
   });
 
-  // タッチ（ピンチ＋パン）
+  // タッチ（1本指パン＋ピンチズーム）
   outer.addEventListener('touchstart', e => {
+    e.preventDefault();
     if (e.touches.length === 2) {
-      bkPinching = true;
+      bkPinching = true; bkDragging = false;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       bkPinchDist0 = Math.hypot(dx, dy);
@@ -1471,10 +1473,10 @@ function initBracketInteraction() {
       bkDragSX = e.touches[0].clientX; bkDragSY = e.touches[0].clientY;
       bkDragX0 = bkX; bkDragY0 = bkY;
     }
-  }, {passive: true});
+  }, {passive: false});
   outer.addEventListener('touchmove', e => {
+    e.preventDefault();
     if (bkPinching && e.touches.length === 2) {
-      e.preventDefault();
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.hypot(dx, dy);
@@ -1493,9 +1495,10 @@ function initBracketInteraction() {
       bkClampPan(); bkApply(false);
     }
   }, {passive: false});
-  outer.addEventListener('touchend', () => {
-    bkDragging = false; bkPinching = false;
-  });
+  outer.addEventListener('touchend', e => {
+    if (e.touches.length === 0) { bkDragging = false; bkPinching = false; }
+    else if (e.touches.length === 1) { bkPinching = false; }
+  }, {passive: false});
 
   // ダブルクリックでリセット
   outer.addEventListener('dblclick', () => bkFitToWidth());
