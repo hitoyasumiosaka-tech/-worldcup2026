@@ -96,6 +96,17 @@
   .rank-photo { width:34px; height:34px; border-radius:50%; object-fit:cover; background:var(--surface2); }
   .rank-goals { font-weight:900; color:var(--gold); font-size:15px; text-align:center; }
   .rank-assists { color:var(--text-dim); text-align:center; }
+
+  /* RANKING CARD GRID */
+  .scorer-rank-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:28px; }
+  .scorer-rank-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+  .scorer-rank-top { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--surface2); }
+  .scorer-rank-badge { font-size:12px; font-weight:900; color:var(--gold); letter-spacing:.04em; }
+  .scorer-rank-flag { font-size:18px; line-height:1; }
+  .scorer-rank-photo-wrap { position:relative; width:100%; aspect-ratio:1/1; background:var(--surface2); }
+  .scorer-rank-photo { width:100%; height:100%; object-fit:cover; display:block; }
+  .scorer-rank-goals { position:absolute; bottom:6px; right:6px; background:rgba(10,10,30,.78); color:var(--gold); font-weight:900; font-size:12px; padding:3px 9px; border-radius:20px; border:1px solid rgba(232,184,75,.4); }
+  .scorer-rank-name { padding:10px 12px; text-align:center; font-size:13px; font-weight:800; color:var(--text); line-height:1.3; }
   .api-notice { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:16px; font-size:12px; color:var(--text-dim); line-height:1.8; margin-bottom:20px; }
   .api-notice b { color:var(--gold); }
 
@@ -358,7 +369,7 @@
   <!-- ACTION BUTTONS -->
   <div class="action-btns" style="grid-template-columns:1fr;">
     <button class="action-btn" onclick="openModal('scorer-modal')">
-      <span class="ab-icon">👑</span>俺の得点王
+      <span class="ab-icon">👑</span>俺たちの得点王
     </button>
     <button class="action-btn" onclick="openModal('rule-modal')">
       <span class="ab-icon">📋</span>ルールを見る
@@ -492,7 +503,7 @@
 <div class="modal-overlay scorer-modal-overlay" id="scorer-modal">
   <div class="modal scorer-modal">
     <div class="scorer-modal-header">
-      <h2>👑 俺の得点王</h2>
+      <h2>👑 俺たちの得点王</h2>
     </div>
     <div class="scorer-modal-body">
 
@@ -1632,6 +1643,50 @@ function submitScorerPick() {
   }).catch(err => showToast('エラー: ' + err.message));
 }
 
+// 国名（英語表記ゆれ含む）→ 国旗絵文字
+const COUNTRY_FLAGS = {
+  'mexico':'🇲🇽','south africa':'🇿🇦','korea republic':'🇰🇷','south korea':'🇰🇷','korea':'🇰🇷','czech republic':'🇨🇿','czechia':'🇨🇿',
+  'canada':'🇨🇦','bosnia and herzegovina':'🇧🇦','bosnia':'🇧🇦','qatar':'🇶🇦','switzerland':'🇨🇭',
+  'brazil':'🇧🇷','morocco':'🇲🇦','haiti':'🇭🇹','scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'united states':'🇺🇸','usa':'🇺🇸','us':'🇺🇸','paraguay':'🇵🇾','australia':'🇦🇺','turkey':'🇹🇷','turkiye':'🇹🇷',
+  'germany':'🇩🇪','curacao':'🇨🇼','curaçao':'🇨🇼','ivory coast':'🇨🇮',"cote d'ivoire":'🇨🇮','ecuador':'🇪🇨',
+  'netherlands':'🇳🇱','holland':'🇳🇱','japan':'🇯🇵','sweden':'🇸🇪','tunisia':'🇹🇳',
+  'belgium':'🇧🇪','egypt':'🇪🇬','iran':'🇮🇷','ir iran':'🇮🇷','new zealand':'🇳🇿',
+  'spain':'🇪🇸','cape verde':'🇨🇻','cabo verde':'🇨🇻','saudi arabia':'🇸🇦','uruguay':'🇺🇾',
+  'france':'🇫🇷','senegal':'🇸🇳','iraq':'🇮🇶','norway':'🇳🇴',
+  'argentina':'🇦🇷','algeria':'🇩🇿','austria':'🇦🇹','jordan':'🇯🇴',
+  'portugal':'🇵🇹','dr congo':'🇨🇩','congo dr':'🇨🇩','democratic republic of the congo':'🇨🇩','uzbekistan':'🇺🇿','colombia':'🇨🇴',
+  'england':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','croatia':'🇭🇷','ghana':'🇬🇭','panama':'🇵🇦',
+};
+function getFlag(teamName) {
+  if (!teamName) return '🏳️';
+  const key = teamName.toLowerCase().trim();
+  if (COUNTRY_FLAGS[key]) return COUNTRY_FLAGS[key];
+  const found = Object.keys(COUNTRY_FLAGS).find(k => key.includes(k) || k.includes(key));
+  return found ? COUNTRY_FLAGS[found] : '🏳️';
+}
+
+// 主要選手 → Wikipedia写真（現時点の得点王上位選手）
+const PLAYER_PHOTOS = [
+  { names:['lionel messi','messi'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Lionel_Messi_NE_Revolution_Inter_Miami_7.9.25-055.jpg/330px-Lionel_Messi_NE_Revolution_Inter_Miami_7.9.25-055.jpg' },
+  { names:['kylian mbappe','kylian mbappé','mbappe','mbappé'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Kylian_Mbappe_France_v_Senegal_16_June_2026-391_%28cropped%29.jpg/330px-Kylian_Mbappe_France_v_Senegal_16_June_2026-391_%28cropped%29.jpg' },
+  { names:['erling haaland','haaland'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Erling_Haaland_France_v_Norway_26_June_26-008.jpg/330px-Erling_Haaland_France_v_Norway_26_June_26-008.jpg' },
+  { names:['harry kane','kane'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Harry_Kane_9_England_v_Ghana_at_2026_Fifa_World_Cup_by_YantsImages_01_%28cropped%29.jpg/330px-Harry_Kane_9_England_v_Ghana_at_2026_Fifa_World_Cup_by_YantsImages_01_%28cropped%29.jpg' },
+  { names:['vinicius junior','vinícius júnior','vinicius jr','vinícius jr','vinicius'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Vin%C3%ADcius_J%C3%BAnior_Brazil_V_Morocco_13_June_2026-207_%28cropped%29.jpg/330px-Vin%C3%ADcius_J%C3%BAnior_Brazil_V_Morocco_13_June_2026-207_%28cropped%29.jpg' },
+  { names:['ousmane dembele','ousmane dembélé','dembele','dembélé'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Ousmane_Dembele_France_v_Senegal_16_June_2026-341_%28cropped%29.jpg/330px-Ousmane_Dembele_France_v_Senegal_16_June_2026-341_%28cropped%29.jpg' },
+  { names:['ismaila sarr','ismaïla sarr','sarr'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Ismaila_Sarr_France_v_Senegal_16_June_2026-425_%28cropped%29.jpg/330px-Ismaila_Sarr_France_v_Senegal_16_June_2026-425_%28cropped%29.jpg' },
+  { names:['mikel oyarzabal','oyarzabal'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/UEFA_EURO_qualifiers_Sweden_vs_Spain_20191015_108_%28cropped%29.jpg/330px-UEFA_EURO_qualifiers_Sweden_vs_Spain_20191015_108_%28cropped%29.jpg' },
+  { names:['jude bellingham','bellingham'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Jude_Bellingham_England_v_Ghana_23_June_2026-061_%28cropped%29.jpg/330px-Jude_Bellingham_England_v_Ghana_23_June_2026-061_%28cropped%29.jpg' },
+  { names:['cristiano ronaldo','ronaldo'], photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Cristiano_Ronaldo_2275_%28cropped%29.jpg/330px-Cristiano_Ronaldo_2275_%28cropped%29.jpg' },
+];
+const PLAYER_PHOTO_FALLBACK = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%231a1a3a"/%3E%3Ccircle cx="50" cy="38" r="18" fill="%23444"/%3E%3Cellipse cx="50" cy="88" rx="32" ry="24" fill="%23444"/%3E%3C/svg%3E';
+function getPlayerPhoto(playerName) {
+  if (!playerName) return PLAYER_PHOTO_FALLBACK;
+  const key = playerName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const found = PLAYER_PHOTOS.find(p => p.names.some(n => key.includes(n.normalize('NFD').replace(/[̀-ͯ]/g, ''))));
+  return found ? found.photo : PLAYER_PHOTO_FALLBACK;
+}
+
 async function fetchTopScorers() {
   const el      = document.getElementById('scorer-ranking');
   const notice  = document.getElementById('sc-api-notice');
@@ -1661,26 +1716,22 @@ async function fetchTopScorers() {
     }
 
     updated.textContent = '更新: ' + fmtTime(Date.now());
-    el.innerHTML = `<div class="ranking-wrap"><table class="ranking-table">
-      <thead><tr>
-        <th style="text-align:center;">#</th>
-        <th>選手</th>
-        <th>チーム</th>
-        <th style="text-align:center;">⚽</th>
-        <th style="text-align:center;">🅰️</th>
-      </tr></thead>
-      <tbody>${list.slice(0, 20).map((s, i) => {
-        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
-        return `<tr>
-          <td class="rank-num">${medal || (i + 1)}</td>
-          <td style="font-weight:700;">${s.player.name}</td>
-          <td style="font-size:12px;color:var(--text-dim);">${s.team?.shortName || s.team?.name || '—'}</td>
-          <td class="rank-goals">${s.goals ?? 0}</td>
-          <td class="rank-assists">${s.assists ?? 0}</td>
-        </tr>`;
-      }).join('')}
-      </tbody>
-    </table></div>`;
+    const teamLabel = s => s.team?.shortName || s.team?.name || '';
+    el.innerHTML = `<div class="scorer-rank-grid">${list.slice(0, 20).map((s, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+      return `<div class="scorer-rank-card">
+        <div class="scorer-rank-top">
+          <span class="scorer-rank-badge">${medal}</span>
+          <span class="scorer-rank-flag">${getFlag(teamLabel(s))}</span>
+        </div>
+        <div class="scorer-rank-photo-wrap">
+          <img class="scorer-rank-photo" src="${getPlayerPhoto(s.player.name)}" alt="${s.player.name}" loading="lazy" onerror="this.src='${PLAYER_PHOTO_FALLBACK}'">
+          <span class="scorer-rank-goals">⚽ ${s.goals ?? 0}</span>
+        </div>
+        <div class="scorer-rank-name">${s.player.name}</div>
+      </div>`;
+    }).join('')}
+    </div>`;
   } catch (e) {
     el.innerHTML = `<div class="empty" style="padding:24px;">取得エラー: ${e.message}</div>`;
   }
