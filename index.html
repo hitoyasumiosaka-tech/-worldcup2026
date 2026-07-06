@@ -1232,7 +1232,15 @@ function computeTeamLatestRound() {
   function mark(m, lvl) {
     const d = matchData(m);
     [d.home, d.away].forEach(team => {
-      if (team && team.name) teamLatestRound[team.name] = Math.max(teamLatestRound[team.name] ?? -1, lvl);
+      if (!team || !team.name) return;
+      const cur = teamLatestRound[team.name] ?? -1;
+      if (isTeamAlive(team.name)) {
+        // 勝ち残り → 最新ラウンドに追従
+        teamLatestRound[team.name] = Math.max(cur, lvl);
+      } else if (cur < lvl) {
+        // 脱落チーム → 負けたラウンドまで記録（それ以上進めない）
+        teamLatestRound[team.name] = lvl;
+      }
     });
   }
   R32_MATCHES.forEach(m => mark(m, 0));
