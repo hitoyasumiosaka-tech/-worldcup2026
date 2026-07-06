@@ -1181,6 +1181,18 @@ const DEFAULT_RESULTS = {
   R16R4:{home:{name:'スイス',flag:'🇨🇭'},away:{name:'コロンビア',flag:'🇨🇴'}},
 };
 
+// 各試合に"どの試合の勝者/敗者が入るか"を定義
+const BRACKET_FLOW = {
+  R16L1:{h:'M49',a:'M50'}, R16L2:{h:'M51',a:'M52'},
+  R16L3:{h:'M53',a:'M54'}, R16L4:{h:'M55',a:'M56'},
+  R16R1:{h:'M57',a:'M58'}, R16R2:{h:'M59',a:'M60'},
+  R16R3:{h:'M61',a:'M62'}, R16R4:{h:'M63',a:'M64'},
+  QFL1:{h:'R16L1',a:'R16L2'}, QFL2:{h:'R16L3',a:'R16L4'},
+  QFR1:{h:'R16R1',a:'R16R2'}, QFR2:{h:'R16R3',a:'R16R4'},
+  SFL1:{h:'QFL1',a:'QFL2'},   SFR1:{h:'QFR1',a:'QFR2'},
+  MF:  {h:'SFL1',a:'SFR1'},   M3P:{h:'SFL1_L',a:'SFR1_L'},
+};
+
 let tourneyData = {};
 let editingMatchId = null;
 let tourneyInited = false;
@@ -1243,9 +1255,18 @@ function bmSeed(grp, pos) {
   return `<div class="bm-seed"><span class="bm-sg">${grp}</span><span class="bm-sp">${pos}</span></div>`;
 }
 
+function getRaw(id) { return DEFAULT_RESULTS[id] || tourneyData[id] || {}; }
+function getWinner(id) { const d=getRaw(id); if(!d.w) return null; return d.w==='h'?d.home:d.away; }
+function getLoser(id)  { const d=getRaw(id); if(!d.w) return null; return d.w==='h'?d.away:d.home; }
+
 function matchData(m) {
-  // 確定済みの結果（DEFAULT_RESULTS）は、Firebase上の古い仮データより優先して表示する
-  return DEFAULT_RESULTS[m.id] || tourneyData[m.id] || {};
+  const d = { ...(DEFAULT_RESULTS[m.id] || tourneyData[m.id] || {}) };
+  const flow = BRACKET_FLOW[m.id];
+  if (flow) {
+    if (!d.home) { const t = flow.h.endsWith('_L') ? getLoser(flow.h.slice(0,-2)) : getWinner(flow.h); if(t) d.home=t; }
+    if (!d.away) { const t = flow.a.endsWith('_L') ? getLoser(flow.a.slice(0,-2)) : getWinner(flow.a); if(t) d.away=t; }
+  }
+  return d;
 }
 
 function bmTeamRowHTML(team, score, isWin, isLose, isLast, seedHtml) {
@@ -1280,14 +1301,14 @@ function colHTML(matches, label, lvl) {
 
 function connSVG(dir, rows, h, pairColors) {
   const step = h / rows; let paths = '';
-  const DIM='#152030', BRIGHT='#4ab0e0', NORM='#2a4a68';
+  const DIM='#1a2535', BRIGHT='#ff3a3a', NORM='#2a4060';
   for (let i = 0; i < rows; i += 2) {
     const pi = i / 2;
     const pc = pairColors && pairColors[pi];
     const cTop = pc ? (pc.top ? BRIGHT : DIM) : NORM;
     const cBot = pc ? (pc.bot ? BRIGHT : DIM) : NORM;
     const cMid = pc ? (pc.mid ? BRIGHT : DIM) : NORM;
-    const wB = 2, wD = 1;
+    const wB = 3, wD = 1;
     const wTop = pc && pc.top ? wB : wD;
     const wBot = pc && pc.bot ? wB : wD;
     const wMid = pc && pc.mid ? wB : wD;
@@ -1309,13 +1330,19 @@ function connSVG(dir, rows, h, pairColors) {
   return `<svg width="28" height="${h}" viewBox="0 0 28 ${h}" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">${paths}</svg>`;
 }
 
-function matchAlive(m) { return !!matchData(m).w; }
+function teamInMatches(name, matches) {
+  return matches.some(m => { const d=matchData(m); return (d.home&&d.home.name===name)||(d.away&&d.away.name===name); });
+}
 
-function calcPairColors(matches) {
+function calcPairColors(matches, nextMatches) {
   const result = [];
   for (let i = 0; i < matches.length; i += 2) {
-    const top = matchAlive(matches[i]);
-    const bot = i+1 < matches.length ? matchAlive(matches[i+1]) : false;
+    const d0 = matchData(matches[i]);
+    const d1 = i+1 < matches.length ? matchData(matches[i+1]) : null;
+    const w0 = d0.w ? (d0.w==='h'?d0.home:d0.away) : null;
+    const w1 = d1&&d1.w ? (d1.w==='h'?d1.home:d1.away) : null;
+    const top = !!(w0 && (!nextMatches || teamInMatches(w0.name, nextMatches)));
+    const bot = !!(w1 && (!nextMatches || teamInMatches(w1.name, nextMatches)));
     result.push({ top, bot, mid: top && bot });
   }
   return result;
@@ -1379,18 +1406,18 @@ function renderBracket() {
 
 function drawBracketConnectors() {
   const h = BK_H - 20;
-  function dc(connId, rows, dir, matches) {
+  function dc(connId, rows, dir, matches, nextMatches) {
     const conn = document.getElementById(connId);
     if (!conn) return;
     conn.style.alignSelf = 'stretch';
-    conn.innerHTML = connSVG(dir, rows, h, matches ? calcPairColors(matches) : null);
+    conn.innerHTML = connSVG(dir, rows, h, matches ? calcPairColors(matches, nextMatches) : null);
   }
-  dc('bconn-l0', 8, 'left', R32_MATCHES.slice(0, 8));
-  dc('bconn-l1', 4, 'left', BS.R16L);
-  dc('bconn-l2', 2, 'left', BS.QFL);
-  dc('bconn-r0', 8, 'right', R32_MATCHES.slice(8, 16));
-  dc('bconn-r1', 4, 'right', BS.R16R);
-  dc('bconn-r2', 2, 'right', BS.QFR);
+  dc('bconn-l0', 8, 'left',  R32_MATCHES.slice(0,8),  BS.R16L);
+  dc('bconn-l1', 4, 'left',  BS.R16L,                 BS.QFL);
+  dc('bconn-l2', 2, 'left',  BS.QFL,                  BS.SFL);
+  dc('bconn-r0', 8, 'right', R32_MATCHES.slice(8,16), BS.R16R);
+  dc('bconn-r1', 4, 'right', BS.R16R,                 BS.QFR);
+  dc('bconn-r2', 2, 'right', BS.QFR,                  BS.SFR);
 }
 
 // ── ブラケット パン＆ズーム ────────────────────────────────────────────────
