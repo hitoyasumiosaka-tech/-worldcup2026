@@ -1263,8 +1263,11 @@ function matchData(m) {
   const d = { ...(DEFAULT_RESULTS[m.id] || tourneyData[m.id] || {}) };
   const flow = BRACKET_FLOW[m.id];
   if (flow) {
-    if (!d.home) { const t = flow.h.endsWith('_L') ? getLoser(flow.h.slice(0,-2)) : getWinner(flow.h); if(t) d.home=t; }
-    if (!d.away) { const t = flow.a.endsWith('_L') ? getLoser(flow.a.slice(0,-2)) : getWinner(flow.a); if(t) d.away=t; }
+    // 前ラウンドの結果から勝者を計算し、常にチーム名を上書き（Firebaseの古い英語名などを排除）
+    const projH = flow.h.endsWith('_L') ? getLoser(flow.h.slice(0,-2)) : getWinner(flow.h);
+    const projA = flow.a.endsWith('_L') ? getLoser(flow.a.slice(0,-2)) : getWinner(flow.a);
+    if (projH) d.home = projH;
+    if (projA) d.away = projA;
   }
   return d;
 }
