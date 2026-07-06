@@ -201,8 +201,8 @@
   .b-conn svg { flex:1; display:block; }
   .b-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 4px; align-self:stretch; }
   .b-trophy { font-size:28px; filter:drop-shadow(0 2px 6px rgba(232,184,75,.5)); }
-  .b-final-lbl { font-size:8px; font-weight:900; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); }
-  .b-3rd-lbl { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-top:4px; }
+  .b-final-lbl { font-size:14px; font-weight:900; letter-spacing:.14em; color:var(--gold); text-shadow:0 0 10px rgba(232,184,75,.5); }
+  .b-3rd-lbl { font-size:9px; font-weight:700; letter-spacing:.08em; color:var(--text-muted); margin-top:6px; border-top:1px solid rgba(255,255,255,.1); padding-top:6px; width:100%; text-align:center; }
   .zoom-pct { font-size:12px; font-weight:700; color:var(--text-dim); min-width:36px; text-align:center; }
 
   /* EDIT MATCH MODAL */
@@ -570,7 +570,8 @@
 <div class="modal-overlay" id="tourney-modal">
   <div class="modal tourney-modal">
     <div class="tourney-header">
-      <h2>🏆 トーナメント</h2>
+      <h2 style="font-size:15px;letter-spacing:.08em;">北中米W杯　ノックアウトステージ</h2>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">★ キックオフ日時はすべて日本時間</div>
     </div>
     <div class="tourney-body">
       <div class="bracket-outer" id="bracket-outer">
@@ -1212,7 +1213,7 @@ function fmtMatchDate(dateStr, timeStr) {
   const days = ['日','月','火','水','木','金','土'];
   const [y,m,d] = dateStr.split('-').map(Number);
   const dt = new Date(y, m-1, d);
-  return `${m}/${d}（${days[dt.getDay()]}）${timeStr} JST`;
+  return `${m}/${d}(${days[dt.getDay()]}) ${timeStr}`;
 }
 
 function getBettors(teamName) {
@@ -1270,7 +1271,7 @@ function bmHTML(m, extraCls='', lvl=0) {
   const chipsHtml = chipsHTMLForMatch(h, a, lvl);
   const hGrp = m.homeGrp || '', hPos = m.homePos || '', aGrp = m.awayGrp || '', aPos = m.awayPos || '';
   return `<div class="bm ${extraCls}" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
-    <div class="bm-date">📅 ${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
+    <div class="bm-date">${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
     ${bmTeamRowHTML(h, hasScore?data.hs:undefined, data.w==='h', false, bmSeed(hGrp,hPos))}
     ${bmTeamRowHTML(a, hasScore?data.as:undefined, data.w==='a', true, bmSeed(aGrp,aPos))}
     ${chipsHtml}
@@ -1311,7 +1312,7 @@ function r32CardHTML(m) {
   const hasScore = data.hs !== undefined && data.as !== undefined;
   const chipsHtml = chipsHTMLForMatch(h, a, 0);
   return `<div class="bm" id="bm-${m.id}" onclick="openEditMatch('${m.id}','${m.label}')">
-    <div class="bm-date">📅 ${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
+    <div class="bm-date">${fmtMatchDate(m.date,m.time)}${data.note?` <span class="bm-note">· ${data.note}</span>`:''}</div>
     ${bmTeamRowHTML(h, hasScore?data.hs:undefined, data.w==='h', false, '<div class="bm-seed"></div>')}
     ${bmTeamRowHTML(a, hasScore?data.as:undefined, data.w==='a', true, '<div class="bm-seed"></div>')}
     ${chipsHtml}
@@ -1339,7 +1340,7 @@ function renderBracket() {
     colHTML(BS.SFL, '準決勝', 3) +
     `<div class="b-center" id="bcol-center">
       <div class="b-trophy">🏆</div>
-      <div class="b-final-lbl">FINAL</div>
+      <div class="b-final-lbl">優 勝</div>
       ${bmHTML(BS.F[0],'gold',4)}
       <div class="b-3rd-lbl">3位決定戦</div>
       <div class="bm-tbd" id="bm-${tp.id}" onclick="openEditMatch('${tp.id}','${tp.label}')" style="cursor:pointer;opacity:.7;width:100%;">
