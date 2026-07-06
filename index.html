@@ -113,8 +113,14 @@
   .group-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
   .group-table tr:last-child td { border-bottom:none; }
   .group-table td.num { text-align:center; color:var(--text-dim); font-size:12px; }
+  .group-table tr.rank-1 td { background:var(--gold-dim); }
+  .group-table td.pts { font-weight:900; color:var(--gold); font-size:15px; }
+  .group-table td.diff-pos { color:#50e090; font-weight:800; }
+  .group-table td.diff-neg { color:#ff6060; font-weight:800; }
   .group-table .team-cell { display:flex; flex-direction:column; gap:3px; }
   .group-table .team-name-row { display:flex; align-items:center; gap:7px; font-weight:600; }
+  .group-table .rank-badge { display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:16px; padding:0 4px; border-radius:4px; font-size:9px; font-weight:800; flex-shrink:0; background:var(--surface); color:var(--text-dim); }
+  .group-table tr.rank-1 .rank-badge { background:var(--gold); color:#1a1400; }
   .group-table .team-flag-sm { font-size:18px; }
   .group-table .bettors-row { display:flex; flex-wrap:wrap; gap:3px; padding-left:2px; }
   .bettor-chip { background:linear-gradient(135deg,#f7e06a 0%,#e8b93a 45%,#c47f10 100%); border:1px solid #f0cc50; border-radius:4px; padding:2px 8px; font-size:10px; color:#3d1f00; font-weight:800; letter-spacing:.03em; box-shadow:0 1px 4px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.35); text-shadow:0 1px 0 rgba(255,220,80,.4); }
@@ -1005,7 +1011,7 @@ function fmt(n) { return n.toLocaleString('ja-JP'); }
 // ─── トーナメント自動取得 ──────────────────────────────────────────────────
 async function fetchTournamentData() {
   try {
-    const res = await fetch(`/.netlify/functions/football?type=matches&season=${WC_SEASON}`);
+    const res = await fetch(`/api/football?type=matches&season=${WC_SEASON}`);
     if (!res.ok) return;
     const json = await res.json();
     if (!json.matches) return;
@@ -1187,6 +1193,12 @@ tourneyRef.on('value', snap => {
     renderR32(); renderBracket();
   }
 });
+
+// ─── 自動更新（誰かがページを開いていれば数分おきにAPIから最新結果を取得）───
+const AUTO_REFRESH_MS = 5 * 60 * 1000;
+fetchTournamentData();
+buildGroupGrid();
+setInterval(() => { fetchTournamentData(); buildGroupGrid(); }, AUTO_REFRESH_MS);
 
 function fmtMatchDate(dateStr, timeStr) {
   const days = ['日','月','火','水','木','金','土'];
@@ -1488,41 +1500,99 @@ function saveMatch() {
   }).catch(err => showToast('エラー: ' + err.message));
 }
 
-// ─── グループリーグ描画（ベット者名付き） ─────────────────────────────────
-function buildGroupGrid() {
+// ─── グループリーグ描画（順位・戦績・ベット者名付き） ───────────────────
+// football-data.org の英語チーム名 → 日本語名マッピング
+const TEAM_NAME_MAP = {
+  'Mexico':'メキシコ','South Africa':'南アフリカ','South Korea':'韓国','Korea Republic':'韓国',
+  'Czechia':'チェコ','Canada':'カナダ','Bosnia-Herzegovina':'ボスニア・ヘルツェゴビナ',
+  'Qatar':'カタール','Switzerland':'スイス','Brazil':'ブラジル','Morocco':'モロッコ',
+  'Haiti':'ハイチ','Scotland':'スコットランド','United States':'アメリカ','USA':'アメリカ',
+  'Paraguay':'パラグアイ','Australia':'オーストラリア','Turkey':'トルコ',
+  'Germany':'ドイツ','Curaçao':'キュラソー','Ivory Coast':'コートジボワール',
+  'Ecuador':'エクアドル','Netherlands':'オランダ','Japan':'日本','Sweden':'スウェーデン',
+  'Tunisia':'チュニジア','Belgium':'ベルギー','Egypt':'エジプト','Iran':'イラン',
+  'New Zealand':'ニュージーランド','Spain':'スペイン','Cape Verde Islands':'カーボベルデ',
+  'Saudi Arabia':'サウジアラビア','Uruguay':'ウルグアイ','France':'フランス',
+  'Senegal':'セネガル','Iraq':'イラク','Norway':'ノルウェー','Argentina':'アルゼンチン',
+  'Algeria':'アルジェリア','Austria':'オーストリア','Jordan':'ヨルダン',
+  'Portugal':'ポルトガル','Congo DR':'コンゴ民主共和国','Uzbekistan':'ウズベキスタン',
+  'Colombia':'コロンビア','England':'イングランド','Croatia':'クロアチア',
+  'Ghana':'ガーナ','Panama':'パナマ',
+};
+
+function renderGroupGrid(standingsMap) {
   const grid = document.getElementById('group-grid');
   const groups = [...new Set(TEAMS.map(t => t.g))].sort();
+  const hasData = standingsMap && Object.keys(standingsMap).length > 0;
   grid.innerHTML = groups.map(g => {
-    const teams = TEAMS.filter(t => t.g === g);
-    const rows = teams.map(t => {
-      // このチームに賭けている人を取得（最新エントリーのみ）
-      const bettors = [...new Set(
-        entries.filter(e => e.team === t.name && !e.retired && !e.deletedAt).map(e => e.name)
-      )];
+    let teams = TEAMS.filter(t => t.g === g);
+    if (hasData) {
+      teams = [...teams].sort((a, b) => {
+        const sa = standingsMap[a.name] || {}, sb = standingsMap[b.name] || {};
+        if ((sb.pts||0) !== (sa.pts||0)) return (sb.pts||0) - (sa.pts||0);
+        const da = (sa.goalsFor||0) - (sa.goalsAgainst||0), db = (sb.goalsFor||0) - (sb.goalsAgainst||0);
+        return db - da;
+      });
+    }
+    const rows = teams.map((t, i) => {
+      const s = (standingsMap && standingsMap[t.name]) || {};
+      const played = s.won !== undefined ? (s.won + s.draw + s.lost) : null;
+      const diff = (s.goalsFor !== undefined && s.goalsAgainst !== undefined) ? s.goalsFor - s.goalsAgainst : null;
+      const diffClass = diff === null ? '' : diff > 0 ? 'diff-pos' : diff < 0 ? 'diff-neg' : '';
+      const diffStr = diff === null ? '—' : diff > 0 ? `+${diff}` : `${diff}`;
+      const bettors = getBettors(t.name);
       const bettorChips = bettors.length && isRevealed()
         ? `<div class="bettors-row">${bettors.map(n => `<span class="bettor-chip">${n}</span>`).join('')}</div>`
         : '';
-      return `<tr>
+      return `<tr class="${i === 0 && hasData ? 'rank-1' : ''}">
         <td>
           <div class="team-cell">
-            <div class="team-name-row"><span class="team-flag-sm">${t.flag}</span>${t.name}</div>
+            <div class="team-name-row">
+              <span class="rank-badge">${i+1}位</span>
+              <span class="team-flag-sm">${t.flag}</span>
+              ${t.name}
+            </div>
             ${bettorChips}
           </div>
         </td>
-        <td class="num">—</td>
-        <td class="num">—</td>
-        <td class="num">—</td>
-        <td class="num">—</td>
+        <td class="num">${played !== null ? played : '—'}</td>
+        <td class="num">${s.won  !== undefined ? s.won  : '—'}</td>
+        <td class="num">${s.draw !== undefined ? s.draw : '—'}</td>
+        <td class="num">${s.lost !== undefined ? s.lost : '—'}</td>
+        <td class="num ${diffClass}">${diffStr}</td>
+        <td class="num pts">${s.pts !== undefined ? s.pts : '—'}</td>
       </tr>`;
     }).join('');
     return `<div class="group-block">
       <div class="group-header">グループ ${g}</div>
       <table class="group-table">
-        <thead><tr><th>チーム</th><th class="num">勝</th><th class="num">分</th><th class="num">負</th><th class="num">pt</th></tr></thead>
+        <thead><tr><th>チーム</th><th class="num">試</th><th class="num">勝</th><th class="num">分</th><th class="num">負</th><th class="num">差</th><th class="num">pt</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
   }).join('');
+}
+
+async function buildGroupGrid() {
+  const grid = document.getElementById('group-grid');
+  if (!grid.innerHTML.trim()) grid.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-dim);">読み込み中...</div>';
+  try {
+    const res = await fetch(`/api/football?type=standings&season=${WC_SEASON}`);
+    const data = await res.json();
+    const standingsMap = {};
+    (data?.standings || []).forEach(group => {
+      (group.table || []).forEach(row => {
+        const jpName = TEAM_NAME_MAP[row.team?.name || ''] || row.team?.name;
+        standingsMap[jpName] = {
+          won: row.won, draw: row.draw, lost: row.lost, pts: row.points,
+          goalsFor: row.goalsFor, goalsAgainst: row.goalsAgainst,
+        };
+      });
+    });
+    renderGroupGrid(standingsMap);
+  } catch (e) {
+    renderGroupGrid({});
+  }
 }
 
 // ─── 得点王予想 ───────────────────────────────────────────────────────────
@@ -1576,7 +1646,7 @@ async function fetchTopScorers() {
   el.innerHTML = '<div class="loading">取得中...</div>';
 
   try {
-    const res  = await fetch(`/.netlify/functions/football?type=scorers&season=${WC_SEASON}`);
+    const res  = await fetch(`/api/football?type=scorers&season=${WC_SEASON}`);
     const json = await res.json();
 
     if (json.errorCode || json.message) {
