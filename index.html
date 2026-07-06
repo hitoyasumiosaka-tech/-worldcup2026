@@ -1333,19 +1333,38 @@ function connSVG(dir, rows, h, pairColors) {
   return `<svg width="28" height="${h}" viewBox="0 0 28 ${h}" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">${paths}</svg>`;
 }
 
-function teamInMatches(name, matches) {
-  return matches.some(m => { const d=matchData(m); return (d.home&&d.home.name===name)||(d.away&&d.away.name===name); });
+// 高いラウンドから順に探して「まだ勝ち残っているか」を判定
+const ALL_ROUNDS_DESC = [
+  BS.F,
+  [...(BS.SFL||[]), ...(BS.SFR||[])],
+  [...(BS.QFL||[]), ...(BS.QFR||[])],
+  [...(BS.R16L||[]), ...(BS.R16R||[])],
+  R32_MATCHES,
+];
+function isTeamAlive(name) {
+  for (const roundMatches of ALL_ROUNDS_DESC) {
+    for (const m of roundMatches) {
+      const d = matchData(m);
+      const isHome = d.home && d.home.name === name;
+      const isAway = d.away && d.away.name === name;
+      if (isHome || isAway) {
+        if (!d.w) return true; // 未消化 = まだ生存
+        return (isHome && d.w==='h') || (isAway && d.w==='a'); // 勝ち=生存、負け=脱落
+      }
+    }
+  }
+  return false;
 }
 
-function calcPairColors(matches, nextMatches) {
+function calcPairColors(matches) {
   const result = [];
   for (let i = 0; i < matches.length; i += 2) {
     const d0 = matchData(matches[i]);
     const d1 = i+1 < matches.length ? matchData(matches[i+1]) : null;
     const w0 = d0.w ? (d0.w==='h'?d0.home:d0.away) : null;
     const w1 = d1&&d1.w ? (d1.w==='h'?d1.home:d1.away) : null;
-    const top = !!(w0 && (!nextMatches || teamInMatches(w0.name, nextMatches)));
-    const bot = !!(w1 && (!nextMatches || teamInMatches(w1.name, nextMatches)));
+    const top = !!(w0 && isTeamAlive(w0.name));
+    const bot = !!(w1 && isTeamAlive(w1.name));
     result.push({ top, bot, mid: top && bot });
   }
   return result;
@@ -1409,18 +1428,18 @@ function renderBracket() {
 
 function drawBracketConnectors() {
   const h = BK_H - 20;
-  function dc(connId, rows, dir, matches, nextMatches) {
+  function dc(connId, rows, dir, matches) {
     const conn = document.getElementById(connId);
     if (!conn) return;
     conn.style.alignSelf = 'stretch';
-    conn.innerHTML = connSVG(dir, rows, h, matches ? calcPairColors(matches, nextMatches) : null);
+    conn.innerHTML = connSVG(dir, rows, h, matches ? calcPairColors(matches) : null);
   }
-  dc('bconn-l0', 8, 'left',  R32_MATCHES.slice(0,8),  BS.R16L);
-  dc('bconn-l1', 4, 'left',  BS.R16L,                 BS.QFL);
-  dc('bconn-l2', 2, 'left',  BS.QFL,                  BS.SFL);
-  dc('bconn-r0', 8, 'right', R32_MATCHES.slice(8,16), BS.R16R);
-  dc('bconn-r1', 4, 'right', BS.R16R,                 BS.QFR);
-  dc('bconn-r2', 2, 'right', BS.QFR,                  BS.SFR);
+  dc('bconn-l0', 8, 'left',  R32_MATCHES.slice(0,8));
+  dc('bconn-l1', 4, 'left',  BS.R16L);
+  dc('bconn-l2', 2, 'left',  BS.QFL);
+  dc('bconn-r0', 8, 'right', R32_MATCHES.slice(8,16));
+  dc('bconn-r1', 4, 'right', BS.R16R);
+  dc('bconn-r2', 2, 'right', BS.QFR);
 }
 
 // ── ブラケット パン＆ズーム ────────────────────────────────────────────────
