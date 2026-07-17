@@ -168,6 +168,12 @@
   .bracket-outer { overflow:hidden; flex:1; touch-action:none; padding:10px 14px; background:#050810; position:relative; }
   .bracket-zoom-wrap { transform-origin:top center; transition:transform .15s; display:inline-block; min-width:100%; }
   .bracket { display:grid; grid-template-columns:174px 30px 150px 30px 130px 30px 120px 68px 120px 30px 130px 30px 150px 30px 174px; align-items:stretch; min-width:1400px; }
+  .bracket.final-only { display:flex; justify-content:center; align-items:center; min-width:0; min-height:100%; padding:20px 0; }
+  .bracket.final-only .b-center { gap:10px; }
+  .bracket.final-only .bm { width:280px; }
+  .bracket.final-only .b-trophy { font-size:44px; }
+  .bracket.final-only .b-final-lbl { font-size:15px; }
+  .bracket.final-only .b-3rd-lbl { font-size:10px; margin-top:14px; }
   .b-col { display:flex; flex-direction:column; }
   .b-col-inner { display:flex; flex-direction:column; flex:1; justify-content:space-around; }
   .b-rlabel { font-size:9px; font-weight:900; letter-spacing:.08em; color:#f0c040; text-align:center; padding:4px 2px 5px; background:#111e30; border-radius:4px 4px 0 0; margin-bottom:2px; border:1px solid #2a4060; border-bottom:none; }
@@ -1137,8 +1143,8 @@ const BS = {
     {id:'QFL2',label:'準々決勝2',date:'2026-07-14',time:'10:00'},
   ],
   SFL:[{id:'SFL1',label:'準決勝1',date:'2026-07-18',time:'10:00'}],
-  F:  [{id:'MF', label:'🏆 決勝',date:'2026-07-26',time:'04:00'}],
-  TP: [{id:'M3P',label:'3位決定戦',date:'2026-07-22',time:'04:00'}],
+  F:  [{id:'MF', label:'🏆 決勝',date:'2026-07-20',time:'04:00'}],
+  TP: [{id:'M3P',label:'3位決定戦',date:'2026-07-19',time:'06:00'}],
   SFR:[{id:'SFR1',label:'準決勝2',date:'2026-07-19',time:'10:00'}],
   QFR:[
     {id:'QFR1',label:'準々決勝3',date:'2026-07-15',time:'04:00'},
@@ -1173,12 +1179,20 @@ const DEFAULT_RESULTS = {
 
   R16L1:{home:{name:'パラグアイ',flag:'🇵🇾'},away:{name:'フランス',flag:'🇫🇷'},hs:0,as:1,w:'a'},
   R16L2:{home:{name:'カナダ',flag:'🇨🇦'},away:{name:'モロッコ',flag:'🇲🇦'},hs:0,as:3,w:'a'},
-  R16L3:{home:{name:'ポルトガル',flag:'🇵🇹'},away:{name:'スペイン',flag:'🇪🇸'}},
-  R16L4:{home:{name:'アメリカ',flag:'🇺🇸'},away:{name:'ベルギー',flag:'🇧🇪'}},
+  R16L3:{home:{name:'ポルトガル',flag:'🇵🇹'},away:{name:'スペイン',flag:'🇪🇸'},hs:0,as:1,w:'a'},
+  R16L4:{home:{name:'アメリカ',flag:'🇺🇸'},away:{name:'ベルギー',flag:'🇧🇪'},hs:1,as:4,w:'a'},
   R16R1:{home:{name:'ブラジル',flag:'🇧🇷'},away:{name:'ノルウェー',flag:'🇳🇴'},hs:1,as:2,w:'a'},
   R16R2:{home:{name:'メキシコ',flag:'🇲🇽'},away:{name:'イングランド',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},hs:2,as:3,w:'a'},
-  R16R3:{home:{name:'アルゼンチン',flag:'🇦🇷'},away:{name:'エジプト',flag:'🇪🇬'}},
-  R16R4:{home:{name:'スイス',flag:'🇨🇭'},away:{name:'コロンビア',flag:'🇨🇴'}},
+  R16R3:{home:{name:'アルゼンチン',flag:'🇦🇷'},away:{name:'エジプト',flag:'🇪🇬'},hs:3,as:2,w:'h'},
+  R16R4:{home:{name:'スイス',flag:'🇨🇭'},away:{name:'コロンビア',flag:'🇨🇴'},hs:0,as:0,w:'h',note:'PK 4-3'},
+
+  QFL1:{home:{name:'フランス',flag:'🇫🇷'},away:{name:'モロッコ',flag:'🇲🇦'},hs:2,as:0,w:'h'},
+  QFL2:{home:{name:'スペイン',flag:'🇪🇸'},away:{name:'ベルギー',flag:'🇧🇪'},hs:2,as:1,w:'h'},
+  QFR1:{home:{name:'ノルウェー',flag:'🇳🇴'},away:{name:'イングランド',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},hs:1,as:2,w:'a',note:'AET'},
+  QFR2:{home:{name:'アルゼンチン',flag:'🇦🇷'},away:{name:'スイス',flag:'🇨🇭'},hs:3,as:1,w:'h',note:'AET'},
+
+  SFL1:{home:{name:'フランス',flag:'🇫🇷'},away:{name:'スペイン',flag:'🇪🇸'},hs:0,as:2,w:'a'},
+  SFR1:{home:{name:'イングランド',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},away:{name:'アルゼンチン',flag:'🇦🇷'},hs:1,as:2,w:'a'},
 };
 
 // 各試合に"どの試合の勝者/敗者が入るか"を定義
@@ -1404,39 +1418,18 @@ function renderBracket() {
   const c = document.getElementById('bracket-container');
   if (!c) return;
   computeTeamLatestRound();
-  c.style.height = BK_H + 'px';
+  c.classList.add('final-only');
+  c.style.height = 'auto';
   const tp = BS.TP[0];
-  const R32L = R32_MATCHES.slice(0, 8);
-  const R32R = R32_MATCHES.slice(8, 16);
 
   c.innerHTML =
-    `<div class="b-col" id="bcol-r32l"><div class="b-rlabel">ベスト32</div><div class="b-col-inner">${R32L.map(m=>r32CardHTML(m)).join('')}</div></div>` +
-    `<div class="b-conn" id="bconn-l0"></div>` +
-    colHTML(BS.R16L, 'ベスト16', 1) +
-    `<div class="b-conn" id="bconn-l1"></div>` +
-    colHTML(BS.QFL, '準々決勝', 2) +
-    `<div class="b-conn" id="bconn-l2"></div>` +
-    colHTML(BS.SFL, '準決勝', 3) +
     `<div class="b-center" id="bcol-center">
       <div class="b-trophy">🏆</div>
       <div class="b-final-lbl">FINAL</div>
       ${bmHTML(BS.F[0],'gold',4)}
       <div class="b-3rd-lbl">3位決定戦</div>
-      <div class="bm-tbd" id="bm-${tp.id}" onclick="openEditMatch('${tp.id}','${tp.label}')" style="cursor:pointer;opacity:.7;width:100%;">
-        <div class="bm-date">📅 ${fmtMatchDate(tp.date,tp.time)}</div>
-        <div class="bm-tbd-row"><div class="bm-tbd-dot"></div><span class="bm-tbd-nm">TBD</span></div>
-        <div class="bm-tbd-row last"><div class="bm-tbd-dot"></div><span class="bm-tbd-nm">TBD</span></div>
-      </div>
-    </div>` +
-    colHTML(BS.SFR, '準決勝', 3) +
-    `<div class="b-conn" id="bconn-r2"></div>` +
-    colHTML(BS.QFR, '準々決勝', 2) +
-    `<div class="b-conn" id="bconn-r1"></div>` +
-    colHTML(BS.R16R, 'ベスト16', 1) +
-    `<div class="b-conn" id="bconn-r0"></div>` +
-    `<div class="b-col" id="bcol-r32r"><div class="b-rlabel">ベスト32</div><div class="b-col-inner">${R32R.map(m=>r32CardHTML(m)).join('')}</div></div>`;
-
-  drawBracketConnectors();
+      ${bmHTML(tp,'',4)}
+    </div>`;
 }
 
 function drawBracketConnectors() {
